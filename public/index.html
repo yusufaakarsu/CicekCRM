@@ -42,6 +42,33 @@
         <div class="alert alert-info mt-4" id="status">
             <i class="bi bi-info-circle"></i> Durum: Yükleniyor...
         </div>
+
+        <div class="row g-3 mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-people"></i> Son Müşteriler</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group" id="recentCustomers">
+                            <li class="list-group-item">Yükleniyor...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-box"></i> Son Siparişler</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group" id="recentOrders">
+                            <li class="list-group-item">Yükleniyor...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -50,6 +77,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadHeader();
             loadStats();
+            loadRecentCustomers();
+            loadRecentOrders();
             setInterval(loadStats, 30000);
         });
 
@@ -68,6 +97,50 @@
                 document.getElementById('status').innerHTML = `
                     <i class="bi bi-exclamation-triangle"></i> Bağlantı hatası!
                 `;
+            }
+        }
+
+        async function loadRecentCustomers() {
+            try {
+                const response = await fetch(`${API_URL}/customers/recent`);
+                const customers = await response.json();
+                const list = document.getElementById('recentCustomers');
+                
+                if (!customers.length) {
+                    list.innerHTML = '<li class="list-group-item">Henüz müşteri bulunmuyor</li>';
+                    return;
+                }
+
+                list.innerHTML = customers.map(customer => `
+                    <li class="list-group-item">
+                        <strong>${customer.name}</strong><br>
+                        <small>${customer.phone}</small>
+                    </li>
+                `).join('');
+            } catch (error) {
+                console.error('Son müşteriler yüklenemedi:', error);
+            }
+        }
+
+        async function loadRecentOrders() {
+            try {
+                const response = await fetch(`${API_URL}/orders/recent`);
+                const orders = await response.json();
+                const list = document.getElementById('recentOrders');
+                
+                if (!orders.length) {
+                    list.innerHTML = '<li class="list-group-item">Henüz sipariş bulunmuyor</li>';
+                    return;
+                }
+
+                list.innerHTML = orders.map(order => `
+                    <li class="list-group-item">
+                        <strong>${order.recipient_name}</strong><br>
+                        <small>${formatDate(order.delivery_date)}</small>
+                    </li>
+                `).join('');
+            } catch (error) {
+                console.error('Son siparişler yüklenemedi:', error);
             }
         }
     </script>

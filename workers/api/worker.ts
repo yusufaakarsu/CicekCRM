@@ -77,6 +77,19 @@ api.post('/customers', async (c) => {
   }
 })
 
+// Son müşterileri getir
+api.get('/customers/recent', async (c) => {
+  const db = c.env.DB
+  try {
+    const { results } = await db
+      .prepare('SELECT * FROM customers ORDER BY created_at DESC LIMIT 5')
+      .all()
+    return c.json(results)
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
 // Bugünün teslimatları
 api.get('/orders/today', async (c) => {
   const db = c.env.DB
@@ -105,6 +118,19 @@ api.get('/orders', async (c) => {
         LEFT JOIN customers c ON o.customer_id = c.id
         ORDER BY o.delivery_date DESC
       `)
+      .all()
+    return c.json(results)
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
+// Son siparişleri getir
+api.get('/orders/recent', async (c) => {
+  const db = c.env.DB
+  try {
+    const { results } = await db
+      .prepare('SELECT * FROM orders ORDER BY created_at DESC LIMIT 5')
       .all()
     return c.json(results)
   } catch (error) {
