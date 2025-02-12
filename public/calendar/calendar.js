@@ -1,37 +1,37 @@
 document.addEventListener('DOMContentLoaded', function() {
-    initializeCalendar();
     loadTodayDeliveries();
+    initializeCalendar();
+    
+    // Header'ı yükle
+    fetch('/common/header.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('header').innerHTML = html;
+            document.querySelector('[data-page="calendar"]').classList.add('active');
+        });
 });
 
 async function loadTodayDeliveries() {
     try {
-        const response = await fetch(`${API_URL}/orders/today`);
+        const response = await fetch(`${API_URL}/calendar/today`);
         const deliveries = await response.json();
         
         const container = document.getElementById('todayDeliveries');
         document.getElementById('todayCount').textContent = deliveries.length;
 
         if (deliveries.length === 0) {
-            container.innerHTML = `
-                <div class="list-group-item text-center text-muted py-4">
-                    Bugün teslimat yok
-                </div>
-            `;
+            container.innerHTML = '<div class="list-group-item text-center py-4">Bugün teslimat yok</div>';
             return;
         }
 
         container.innerHTML = deliveries.map(delivery => `
-            <div class="list-group-item delivery-item ${delivery.time_slot}">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <div class="fw-bold">${delivery.recipient_name}</div>
-                        <small>${delivery.delivery_address}</small>
-                    </div>
-                    <span class="badge bg-secondary">${formatTime(delivery.delivery_time)}</span>
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${delivery.recipient_name}</h6>
+                    <small>${formatTime(delivery.delivery_date)}</small>
                 </div>
-                <div class="mt-2">
-                    <small class="text-muted">${delivery.notes || ''}</small>
-                </div>
+                <p class="mb-1">${delivery.delivery_address}</p>
+                <small class="text-muted">${delivery.notes || ''}</small>
             </div>
         `).join('');
     } catch (error) {
@@ -54,37 +54,32 @@ function initializeCalendar() {
             month: 'Ay',
             week: 'Hafta'
         },
-        firstDay: 1,
-        height: 'auto',
-        eventClick: function(info) {
-            // Sipariş detaylarını göster
-            showOrderDetails(info.event.id);
-        },
-        events: async function(fetchInfo, successCallback, failureCallback) {
-            try {
-                const response = await fetch(`${API_URL}/orders/calendar?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}`);
-                const events = await response.json();
-                successCallback(events.map(event => ({
-                    id: event.id,
-                    title: event.recipient_name,
-                    start: event.delivery_date,
-                    className: `status-${event.status}`,
-                    extendedProps: {
-                        status: event.status,
-                        address: event.delivery_address
-                    }
-                })));
-            } catch (error) {
-                failureCallback(error);
-            }
+        events: function(info, successCallback, failureCallback) {
+            fetch(`${API_URL}/calendar/events?start=${info.startStr}&end=${info.endStr}`)
+                .then(response => response.json())
+                .then(events => {
+                    successCallback(
+                        events.map(event => ({
+                            title: event.recipient_name,
+                            start: event.delivery_date,
+                            className: `status-${event.status}`,
+                            extendedProps: {
+                                customer: event.customer_name,
+                                address: event.delivery_address,
+                                status: event.status
+                            }
+                        }))
+                    );
+                })
+                .catch(failureCallback);
         }
     });
 
     calendar.render();
 }
 
-function formatTime(time) {
-    return new Date(time).toLocaleTimeString('tr-TR', {
+function formatTime(dateStr) {
+    return new Date(dateStr).toLocaleTimeString('tr-TR', {
         hour: '2-digit',
         minute: '2-digit'
     });

@@ -114,4 +114,47 @@ api.get('/orders/calendar', async (c) => {
   }
 })
 
+// Bugünün teslimatları
+api.get('/calendar/today', async (c) => {
+  const db = c.env.DB
+  try {
+    const { results } = await db
+      .prepare(`
+        SELECT o.*, c.name as customer_name 
+        FROM orders o
+        LEFT JOIN customers c ON o.customer_id = c.id
+        WHERE DATE(o.delivery_date) = DATE('now')
+        ORDER BY o.delivery_date ASC
+      `)
+      .all()
+    return c.json(results)
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
+// Belirli tarih aralığındaki teslimatlar
+api.get('/calendar/events', async (c) => {
+  const { searchParams } = new URL(c.req.url)
+  const start = searchParams.get('start')
+  const end = searchParams.get('end')
+
+  const db = c.env.DB
+  try {
+    const { results } = await db
+      .prepare(`
+        SELECT o.*, c.name as customer_name 
+        FROM orders o
+        LEFT JOIN customers c ON o.customer_id = c.id
+        WHERE DATE(o.delivery_date) BETWEEN DATE(?) AND DATE(?)
+        ORDER BY o.delivery_date ASC
+      `)
+      .bind(start, end)
+      .all()
+    return c.json(results)
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
 export default api
