@@ -5,10 +5,14 @@ compatibility_date = "2024-02-12"
 [[d1_databases]]
 binding = "DB"
 database_name = "cicek-crm-db"
-database_id = "BURAYA_CLOUDFLARE_DATABASE_ID"
+database_id = "4b0bbc33-f9ec-4adf-a983-d6683839752d"
 
 [build]
 command = "npm run build"
+watch_dir = "src"
 
-[vars]
-ENVIRONMENT = "development"
+[site]
+bucket = "./public"
+
+[env.development]
+name = "cicek-crm-dev"
