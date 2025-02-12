@@ -77,4 +77,41 @@ api.post('/customers', async (c) => {
   }
 })
 
+// Bugünün teslimatları
+api.get('/orders/today', async (c) => {
+  const db = c.env.DB
+  try {
+    const { results } = await db
+      .prepare(`
+        SELECT * FROM orders 
+        WHERE DATE(delivery_date) = DATE('now')
+        ORDER BY delivery_date ASC
+      `)
+      .all()
+    return c.json(results)
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
+// Takvim görünümü için siparişler
+api.get('/orders/calendar', async (c) => {
+  const { start, end } = c.req.query()
+  const db = c.env.DB
+  
+  try {
+    const { results } = await db
+      .prepare(`
+        SELECT * FROM orders 
+        WHERE delivery_date BETWEEN ? AND ?
+        ORDER BY delivery_date ASC
+      `)
+      .bind(start, end)
+      .all()
+    return c.json(results)
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
 export default api
