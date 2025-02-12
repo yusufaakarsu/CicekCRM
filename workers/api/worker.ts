@@ -3,7 +3,10 @@ import { cors } from 'hono/cors'
 
 const api = new Hono()
 
-api.use('*', cors())
+api.use('*', cors({
+  origin: ['https://crm.cicekci.com', 'https://cicekcrm.pages.dev'],
+  credentials: true
+}))
 
 api.get('/', () => new Response('API Running'))
 
@@ -36,6 +39,39 @@ api.get('/stats', async (c) => {
   } catch (error) {
     console.error('Database error:', error)
     return c.json({ error: error.message }, 500)
+  }
+})
+
+// Müşterileri listele
+api.get('/customers', async (c) => {
+  const db = c.env.DB
+  try {
+    const { results } = await db
+      .prepare('SELECT * FROM customers ORDER BY name')
+      .all()
+    return c.json(results)
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
+// Yeni müşteri ekle
+api.post('/customers', async (c) => {
+  const body = await c.req.json()
+  const db = c.env.DB
+  
+  try {
+    const result = await db
+      .prepare(`
+        INSERT INTO customers (name, phone, email, address)
+        VALUES (?, ?, ?, ?)
+      `)
+      .bind(body.name, body.phone, body.email, body.address)
+      .run()
+
+    return c.json({ success: true, id: result.lastRowId })
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
   }
 })
 

@@ -1,0 +1,17 @@
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.status-new { background-color: #fff3cd; }
+.status-preparing { background-color: #cfe2ff; }
+.status-delivering { background-color: #d1e7dd; }
+.status-completed { background-color: #e2e3e5; }
+
+.loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
