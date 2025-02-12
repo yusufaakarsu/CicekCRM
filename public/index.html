@@ -119,73 +119,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             loadHeader();
-            loadStats();
+            loadDashboardData();  // loadStats yerine loadDashboardData kullan
             loadRecentCustomers();
             loadRecentOrders();
-            setInterval(loadStats, 30000);
+            setInterval(loadDashboardData, 30000);  // Bu interval'i de güncelle
         });
 
-        async function loadStats() {
-            try {
-                const response = await fetch(`${API_URL}/stats`);
-                const data = await response.json();
-                
-                document.getElementById('ordersToday').textContent = `${data.ordersToday} Sipariş`;
-                document.getElementById('customersTotal').textContent = `${data.customersTotal} Müşteri`;
-                document.getElementById('pendingDeliveries').textContent = `${data.pendingDeliveries} Teslimat`;
-                document.getElementById('status').innerHTML = `
-                    <i class="bi bi-check-circle"></i> Son güncelleme: ${new Date().toLocaleTimeString()}
-                `;
-            } catch (error) {
-                document.getElementById('status').innerHTML = `
-                    <i class="bi bi-exclamation-triangle"></i> Bağlantı hatası!
-                `;
-            }
-        }
-
-        async function loadRecentCustomers() {
-            try {
-                const response = await fetch(`${API_URL}/customers/recent`);
-                const customers = await response.json();
-                const list = document.getElementById('recentCustomers');
-                
-                if (!customers.length) {
-                    list.innerHTML = '<li class="list-group-item">Henüz müşteri bulunmuyor</li>';
-                    return;
-                }
-
-                list.innerHTML = customers.map(customer => `
-                    <li class="list-group-item">
-                        <strong>${customer.name}</strong><br>
-                        <small>${customer.phone}</small>
-                    </li>
-                `).join('');
-            } catch (error) {
-                console.error('Son müşteriler yüklenemedi:', error);
-            }
-        }
-
-        async function loadRecentOrders() {
-            try {
-                const response = await fetch(`${API_URL}/orders/recent`);
-                const orders = await response.json();
-                const list = document.getElementById('recentOrders');
-                
-                if (!orders.length) {
-                    list.innerHTML = '<li class="list-group-item">Henüz sipariş bulunmuyor</li>';
-                    return;
-                }
-
-                list.innerHTML = orders.map(order => `
-                    <li class="list-group-item">
-                        <strong>${order.recipient_name}</strong><br>
-                        <small>${formatDate(order.delivery_date)}</small>
-                    </li>
-                `).join('');
-            } catch (error) {
-                console.error('Son siparişler yüklenemedi:', error);
-            }
-        }
+        // loadStats fonksiyonunu kaldır, artık common.js'deki loadDashboardData kullanılıyor
     </script>
 </body>
 </html>
