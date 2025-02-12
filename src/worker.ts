@@ -29,4 +29,24 @@ app.get('/api/db-test', async (c) => {
   }
 })
 
+// API Routes
+app.get('/api/stats', async (c) => {
+  const db = c.env.DB
+  
+  try {
+    const [customers, orders] = await Promise.all([
+      db.prepare('SELECT COUNT(*) as count FROM customers').first(),
+      db.prepare('SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) = DATE("now")').first()
+    ])
+
+    return c.json({
+      customersTotal: customers?.count || 0,
+      ordersToday: orders?.count || 0,
+      pendingDeliveries: 0
+    })
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
 export default app

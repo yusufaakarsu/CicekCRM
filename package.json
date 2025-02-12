@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p dist && cp -r public/* dist/"
+    "build": "mkdir -p dist && cp -r public/* dist/",
+    "dev": "wrangler dev src/worker.ts"
+  },
+  "dependencies": {
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240208.0",
+    "wrangler": "^3.0.0"
   }
 }
