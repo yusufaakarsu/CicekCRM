@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Çiçek CRM</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                document.getElementById('ordersToday').textContent = `Bugün: ${data.ordersToday}`;
+                document.getElementById('customersTotal').textContent = `Toplam: ${data.customersTotal}`;
+                document.getElementById('pendingDeliveries').textContent = `Bekleyen: ${data.pendingDeliveries}`;
+            } catch (error) {
+                console.error('API error:', error);
+            }
+        }
+
+        // Sayfa yüklendiğinde istatistikleri yükle
+        document.addEventListener('DOMContentLoaded', loadStats);
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-dark bg-dark">
@@ -18,7 +35,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Siparişler</h5>
-                        <p class="card-text">Bugün: 0</p>
+                        <p class="card-text" id="ordersToday">Yükleniyor...</p>
                     </div>
                 </div>
             </div>
@@ -26,7 +43,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Müşteriler</h5>
-                        <p class="card-text">Toplam: 0</p>
+                        <p class="card-text" id="customersTotal">Yükleniyor...</p>
                     </div>
                 </div>
             </div>
@@ -34,7 +51,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Teslimatlar</h5>
-                        <p class="card-text">Bekleyen: 0</p>
+                        <p class="card-text" id="pendingDeliveries">Yükleniyor...</p>
                     </div>
                 </div>
             </div>
