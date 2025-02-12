@@ -229,21 +229,50 @@ api.get('/products/low-stock', async (c) => {
   }
 })
 
-// Sipariş özetlerini getir
+// Sipariş özetlerini getir (3 günlük)
 api.get('/orders/summary', async (c) => {
   const db = c.env.DB
   try {
-    const [today, tomorrow, week] = await Promise.all([
+    const [today, tomorrow, nextDay] = await Promise.all([
       db.prepare("SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) = DATE('now')").first(),
       db.prepare("SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) = DATE('now', '+1 day')").first(),
-      db.prepare("SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) BETWEEN DATE('now', '+1 day') AND DATE('now', '+7 days')").first()
+      db.prepare("SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) = DATE('now', '+2 day')").first()
     ])
 
     return c.json({
       today: today.count,
       tomorrow: tomorrow.count,
-      week: week.count
+      nextDay: nextDay.count
     })
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
+// Detaylı son siparişler
+api.get('/orders/recent-detailed', async (c) => {
+  const db = c.env.DB
+  try {
+    const { results: orders } = await db.prepare(`
+      SELECT o.*, c.name as customer_name 
+      FROM orders o
+      LEFT JOIN customers c ON o.customer_id = c.id
+      ORDER BY o.created_at DESC 
+      LIMIT 10
+    `).all()
+
+    // Her sipariş için ürün detaylarını al
+    for (let order of orders) {
+      const { results: items } = await db.prepare(`
+        SELECT oi.*, p.name 
+        FROM order_items oi
+        LEFT JOIN products p ON oi.product_id = p.id
+        WHERE oi.order_id = ?
+      `).bind(order.id).all()
+      order.items = items
+    }
+
+    return c.json(orders)
   } catch (error) {
     return c.json({ error: 'Database error' }, 500)
   }

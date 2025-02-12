@@ -59,7 +59,7 @@
                             <strong id="tomorrow-orders">Yükleniyor...</strong>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <span>Gelecek Hafta:</span>
+                            <span>Gelecek 3 Gün:</span>
                             <strong id="future-orders">Yükleniyor...</strong>
                         </div>
                     </div>
@@ -82,27 +82,31 @@
 
         <!-- Son İşlemler -->
         <div class="row g-3 mt-4">
-            <div class="col-md-6">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="bi bi-people"></i> Son Müşteriler</h5>
+                        <h5 class="card-title"><i class="bi bi-box"></i> Son Siparişler ve Detayları</h5>
                     </div>
                     <div class="card-body">
-                        <ul class="list-group" id="recentCustomers">
-                            <li class="list-group-item">Yükleniyor...</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title"><i class="bi bi-box"></i> Son Siparişler</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group" id="recentOrders">
-                            <li class="list-group-item">Yükleniyor...</li>
-                        </ul>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="recentOrders">
+                                <thead>
+                                    <tr>
+                                        <th>Sipariş No</th>
+                                        <th>Müşteri</th>
+                                        <th>Ürünler</th>
+                                        <th>Teslimat</th>
+                                        <th>Durum</th>
+                                        <th>Tutar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="6" class="text-center">Yükleniyor...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -77,13 +77,13 @@ async function loadDashboardData() {
 
         // İstatistik kartları
         document.getElementById('ordersToday').textContent = `${stats.ordersToday} Sipariş`;
-        document.getElementById('pendingDeliveries').textContent = `${stats.pendingDeliveries} Teslimat`;
+        document.getElementById('pendingDeliveries').textContent = `${stats.deliveredToday}/${stats.pendingDeliveries} Teslimat`;
         document.getElementById('lowStockCount').textContent = `${stats.lowStockCount} Ürün`;
 
-        // Teslimat programı
+        // Teslimat programı - 3 günlük
         document.getElementById('today-orders').textContent = `${orderSummary.today} Sipariş`;
         document.getElementById('tomorrow-orders').textContent = `${orderSummary.tomorrow} Sipariş`;
-        document.getElementById('future-orders').textContent = `${orderSummary.week} Sipariş`;
+        document.getElementById('future-orders').textContent = `${orderSummary.nextDay} Sipariş`;
 
         // Düşük stok listesi
         const lowStockList = document.getElementById('low-stock-list');
@@ -97,6 +97,27 @@ async function loadDashboardData() {
                 `).join('');
         } else {
             lowStockList.innerHTML = '<div class="list-group-item text-center">Düşük stok yok</div>';
+        }
+
+        // Son siparişler tablosu
+        const recentOrdersTable = document.getElementById('recentOrders').getElementsByTagName('tbody')[0];
+        const recentOrdersResponse = await fetch(`${API_URL}/orders/recent-detailed`);
+        const recentOrders = await recentOrdersResponse.json();
+        
+        if (recentOrders.length > 0) {
+            recentOrdersTable.innerHTML = recentOrders.map(order => `
+                <tr>
+                    <td>${order.id}</td>
+                    <td>${order.customer_name}</td>
+                    <td>${order.items.map(item => `${item.quantity}x ${item.name}`).join('<br>')}</td>
+                    <td>
+                        ${formatDate(order.delivery_date)}<br>
+                        <small class="text-muted">${order.delivery_address}</small>
+                    </td>
+                    <td>${getStatusBadge(order.status)}</td>
+                    <td>${formatCurrency(order.total_amount)}</td>
+                </tr>
+            `).join('');
         }
 
         document.getElementById('status').innerHTML = `
