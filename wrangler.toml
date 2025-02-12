@@ -1,0 +1,14 @@
+name = "cicek-crm"
+main = "src/worker.ts"
+compatibility_date = "2024-02-12"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cicek-crm-db"
+database_id = "BURAYA_CLOUDFLARE_DATABASE_ID"
+
+[build]
+command = "npm run build"
+
+[vars]
+ENVIRONMENT = "development"
