@@ -6,15 +6,5 @@ binding = "DB"
 database_name = "cicek-crm-db"
 database_id = "4b0bbc33-f9ec-4adf-a983-d6683839752d"
 
-[build]
-command = "npm run build"
-
 [site]
 bucket = "./public"
-
-[routes]
-/api/* = "/api/*"
-/* = "/public/*"
-
-[env.development]
-name = "cicek-crm-dev"
