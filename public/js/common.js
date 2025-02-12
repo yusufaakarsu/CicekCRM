@@ -62,3 +62,49 @@ function getStatusBadge(status) {
     const [text, color] = statusMap[status] || ['Bilinmiyor', 'secondary'];
     return `<span class="badge bg-${color}">${text}</span>`;
 }
+
+async function loadDashboardData() {
+    try {
+        const [statsResponse, lowStockResponse, orderSummaryResponse] = await Promise.all([
+            fetch(`${API_URL}/stats`),
+            fetch(`${API_URL}/products/low-stock`),
+            fetch(`${API_URL}/orders/summary`)
+        ]);
+
+        const stats = await statsResponse.json();
+        const lowStock = await lowStockResponse.json();
+        const orderSummary = await orderSummaryResponse.json();
+
+        // İstatistik kartları
+        document.getElementById('ordersToday').textContent = `${stats.ordersToday} Sipariş`;
+        document.getElementById('pendingDeliveries').textContent = `${stats.pendingDeliveries} Teslimat`;
+        document.getElementById('lowStockCount').textContent = `${stats.lowStockCount} Ürün`;
+
+        // Teslimat programı
+        document.getElementById('today-orders').textContent = `${orderSummary.today} Sipariş`;
+        document.getElementById('tomorrow-orders').textContent = `${orderSummary.tomorrow} Sipariş`;
+        document.getElementById('future-orders').textContent = `${orderSummary.week} Sipariş`;
+
+        // Düşük stok listesi
+        const lowStockList = document.getElementById('low-stock-list');
+        if (lowStock.length > 0) {
+            lowStockList.innerHTML = lowStock
+                .map(item => `
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>${item.name}</span>
+                        <span class="badge bg-warning">${item.stock} adet</span>
+                    </div>
+                `).join('');
+        } else {
+            lowStockList.innerHTML = '<div class="list-group-item text-center">Düşük stok yok</div>';
+        }
+
+        document.getElementById('status').innerHTML = `
+            <i class="bi bi-check-circle"></i> Son güncelleme: ${new Date().toLocaleTimeString()}
+        `;
+    } catch (error) {
+        document.getElementById('status').innerHTML = `
+            <i class="bi bi-exclamation-triangle"></i> Bağlantı hatası!
+        `;
+    }
+}
