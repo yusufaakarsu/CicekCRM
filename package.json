@@ -1,10 +1,10 @@
 {
-  "name": "cicek-crm",
+  "name": "cicekcrm",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "wrangler deploy",
     "dev": "wrangler dev",
+    "build": "mkdir -p dist && cp -r public/* dist/ || true",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
