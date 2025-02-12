@@ -8,6 +8,7 @@
     <script>
         async function loadStats() {
             try {
+                // Aynı domain üzerinden API'ye istek yap
                 const response = await fetch('/api/stats');
                 const data = await response.json();
                 
@@ -16,6 +17,9 @@
                 document.getElementById('pendingDeliveries').textContent = `Bekleyen: ${data.pendingDeliveries}`;
             } catch (error) {
                 console.error('API error:', error);
+                document.getElementById('ordersToday').textContent = 'Hata!';
+                document.getElementById('customersTotal').textContent = 'Hata!';
+                document.getElementById('pendingDeliveries').textContent = 'Hata!';
             }
         }
 
