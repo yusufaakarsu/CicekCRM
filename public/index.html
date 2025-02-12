@@ -12,6 +12,50 @@
     <div id="header"></div>
 
     <div class="container mt-4">
+        <!-- Dashboard bölümünü sayfanın en üstüne taşıdık -->
+        <section id="dashboard" class="my-4">
+            <div class="container">
+                <h1 class="text-center mb-4">Operasyonel Dashboard</h1>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                <strong>Düşük Stok Ürünleri</strong>
+                            </div>
+                            <ul class="list-group list-group-flush" id="low-stock-list">
+                                <!-- Liste dinamik yüklenecek -->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                <strong>Sipariş Özeti</strong>
+                            </div>
+                            <div class="card-body">
+                                <p>Bugün: <span id="today-orders"></span></p>
+                                <p>Yarın: <span id="tomorrow-orders"></span></p>
+                                <p>Sonraki Gün: <span id="future-orders"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                <strong>Teslimatlar</strong>
+                            </div>
+                            <div class="card-body">
+                                <p>Toplam Sipariş: <span id="total-orders"></span></p>
+                                <p>Teslim Edilen: <span id="delivered-orders"></span></p>
+                                <p>Kalan: <span id="pending-deliveries"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mevcut istatistik kartları kısmı, istenirse kaldırılabilir ya da alt bilgi olarak kullanılabilir -->
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="card h-100">
@@ -70,49 +114,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Operasyonel Dashboard Bölümü: Dashboard özellikleri mevcut index.html'e eklendi -->
-    <section id="dashboard" class="my-4">
-      <div class="container">
-        <h1 class="text-center mb-4">Operasyonel Dashboard</h1>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="card text-center">
-              <div class="card-header">
-                <strong>Düşük Stok Ürünleri</strong>
-              </div>
-              <ul class="list-group list-group-flush" id="low-stock-list">
-                <!-- Liste dinamik yüklenecek -->
-              </ul>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card text-center">
-              <div class="card-header">
-                <strong>Sipariş Özeti</strong>
-              </div>
-              <div class="card-body">
-                <p>Bugün: <span id="today-orders"></span></p>
-                <p>Yarın: <span id="tomorrow-orders"></span></p>
-                <p>Sonraki Gün: <span id="future-orders"></span></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card text-center">
-              <div class="card-header">
-                <strong>Teslimatlar</strong>
-              </div>
-              <div class="card-body">
-                <p>Toplam Sipariş: <span id="total-orders"></span></p>
-                <p>Teslim Edilen: <span id="delivered-orders"></span></p>
-                <p>Kalan: <span id="pending-deliveries"></span></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/common.js"></script>

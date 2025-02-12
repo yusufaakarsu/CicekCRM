@@ -1,30 +1,34 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    // API'den dashboard verilerini çekiyoruz (veritabanı /api/dashboard'de yönetiliyor)
-    const response = await fetch(`${API_URL}/dashboard`);
-    const data = await response.json();
+  await loadDashboard();
+});
 
-    // Düşük stok ürünleri listesi
+async function loadDashboard() {
+  try {
+    // Düşük stok ürünleri için API çağrısı
+    const lowStockResponse = await fetch(`${API_URL}/products/low-stock`);
+    const lowStockData = await lowStockResponse.json();
     const lowStockList = document.getElementById('low-stock-list');
     lowStockList.innerHTML = '';
-    if (data.lowStock && data.lowStock.length) {
-      data.lowStock.forEach(product => {
-        lowStockList.innerHTML += `<li class="list-group-item">${product.name} - ${product.stock} Adet</li>`;
+    if (lowStockData && lowStockData.length) {
+      lowStockData.forEach(item => {
+        lowStockList.innerHTML += `<li class="list-group-item">${item.name} - ${item.stock} Adet</li>`;
       });
     } else {
       lowStockList.innerHTML = '<li class="list-group-item">Veri bulunamadı</li>';
     }
 
+    // Sipariş ve teslimat özetleri için API çağrısı
+    const summaryResponse = await fetch(`${API_URL}/orders/summary`);
+    const summaryData = await summaryResponse.json();
     // Sipariş özetleri
-    document.getElementById('today-orders').textContent = `${data.orders.today} Sipariş`;
-    document.getElementById('tomorrow-orders').textContent = `${data.orders.tomorrow} Sipariş`;
-    document.getElementById('future-orders').textContent = `${data.orders.future} Sipariş`;
-
+    document.getElementById('today-orders').textContent = `${summaryData.orders.today} Sipariş`;
+    document.getElementById('tomorrow-orders').textContent = `${summaryData.orders.tomorrow} Sipariş`;
+    document.getElementById('future-orders').textContent = `${summaryData.orders.future} Sipariş`;
     // Teslimat özetleri
-    document.getElementById('total-orders').textContent = `${data.deliveries.total} Sipariş`;
-    document.getElementById('delivered-orders').textContent = `${data.deliveries.delivered} Teslimat`;
-    document.getElementById('pending-deliveries').textContent = `${data.deliveries.pending} Kalan`;
+    document.getElementById('total-orders').textContent = `${summaryData.deliveries.total} Sipariş`;
+    document.getElementById('delivered-orders').textContent = `${summaryData.deliveries.delivered} Teslimat`;
+    document.getElementById('pending-deliveries').textContent = `${summaryData.deliveries.pending} Kalan`;
   } catch (error) {
     console.error('Dashboard verileri yüklenemedi:', error);
   }
-});
+}
