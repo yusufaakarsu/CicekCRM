@@ -3,9 +3,11 @@ import { cors } from 'hono/cors'
 
 const api = new Hono()
 
+// Tüm originlere izin ver (development için)
 api.use('*', cors({
-  origin: ['https://crm.cicekci.com', 'https://cicekcrm.pages.dev'],
-  credentials: true
+  origin: '*',
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowHeaders: ['Content-Type', 'Authorization']
 }))
 
 api.get('/', () => new Response('API Running'))

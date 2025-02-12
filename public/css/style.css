@@ -15,3 +15,22 @@
     opacity: 0.5;
     pointer-events: none;
 }
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.fc-event {
+    cursor: pointer;
+}
+
+.delivery-time-morning { background-color: #fff3cd; }
+.delivery-time-afternoon { background-color: #cfe2ff; }
+.delivery-time-evening { background-color: #d1e7dd; }
+
+.navbar-nav {
+    flex-direction: row !important;
+    gap: 1rem;
+}
