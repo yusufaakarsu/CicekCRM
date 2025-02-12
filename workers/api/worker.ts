@@ -216,4 +216,37 @@ api.get('/calendar/events', async (c) => {
   }
 })
 
+// Düşük stoklu ürünleri getir
+api.get('/products/low-stock', async (c) => {
+  const db = c.env.DB
+  try {
+    const { results } = await db
+      .prepare('SELECT * FROM products WHERE stock <= min_stock ORDER BY stock ASC')
+      .all()
+    return c.json(results)
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
+// Sipariş özetlerini getir
+api.get('/orders/summary', async (c) => {
+  const db = c.env.DB
+  try {
+    const [today, tomorrow, week] = await Promise.all([
+      db.prepare("SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) = DATE('now')").first(),
+      db.prepare("SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) = DATE('now', '+1 day')").first(),
+      db.prepare("SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) BETWEEN DATE('now', '+1 day') AND DATE('now', '+7 days')").first()
+    ])
+
+    return c.json({
+      today: today.count,
+      tomorrow: tomorrow.count,
+      week: week.count
+    })
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
 export default api
