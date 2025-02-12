@@ -34,17 +34,19 @@ app.get('/api/stats', async (c) => {
   const db = c.env.DB
   
   try {
-    const [customers, orders] = await Promise.all([
+    const [customers, orders, pending] = await Promise.all([
       db.prepare('SELECT COUNT(*) as count FROM customers').first(),
-      db.prepare('SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) = DATE("now")').first()
+      db.prepare('SELECT COUNT(*) as count FROM orders WHERE DATE(delivery_date) = DATE("now")').first(),
+      db.prepare('SELECT COUNT(*) as count FROM orders WHERE status IN ("new", "preparing")').first()
     ])
 
     return c.json({
-      customersTotal: customers?.count || 0,
-      ordersToday: orders?.count || 0,
-      pendingDeliveries: 0
+      customersTotal: customers?.count ?? 0,
+      ordersToday: orders?.count ?? 0,
+      pendingDeliveries: pending?.count ?? 0
     })
   } catch (error) {
+    console.error('DB Error:', error)
     return c.json({ error: 'Database error' }, 500)
   }
 })
