@@ -3,7 +3,6 @@ import { cors } from 'hono/cors'
 
 const api = new Hono()
 
-// Tüm originlere izin ver (development için)
 api.use('*', cors({
   origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -12,35 +11,45 @@ api.use('*', cors({
 
 api.get('/', () => new Response('API Running'))
 
+// Ana sayfa istatistikleri için endpoint
 api.get('/stats', async (c) => {
   const db = c.env.DB
-  
   try {
-    console.log('Running database queries...')
-    
-    const sql = {
-      customers: 'SELECT COUNT(*) as count FROM customers',
-      todayOrders: "SELECT COUNT(*) as count FROM orders WHERE date(delivery_date) = date('now')",
-      pendingOrders: "SELECT COUNT(*) as count FROM orders WHERE status IN ('new', 'preparing')"
-    }
+    const results = await Promise.all([
+      // Bugünkü siparişler
+      db.prepare(`
+        SELECT COUNT(*) as count 
+        FROM orders 
+        WHERE DATE(delivery_date) = DATE('now')`
+      ).first(),
+      
+      // Toplam müşteri sayısı
+      db.prepare('SELECT COUNT(*) as count FROM customers').first(),
+      
+      // Bekleyen teslimatlar
+      db.prepare(`
+        SELECT COUNT(*) as count 
+        FROM orders 
+        WHERE status IN ('new', 'preparing', 'delivering')`
+      ).first(),
 
-    const [customers, orders, pending] = await Promise.all([
-      db.prepare(sql.customers).first(),
-      db.prepare(sql.todayOrders).first(),
-      db.prepare(sql.pendingOrders).first()
+      // Düşük stok ürünleri
+      db.prepare(`
+        SELECT COUNT(*) as count 
+        FROM products 
+        WHERE stock <= min_stock`
+      ).first()
     ])
-    
-    const result = {
-      customersTotal: Number(customers?.count || 0),
-      ordersToday: Number(orders?.count || 0),
-      pendingDeliveries: Number(pending?.count || 0)
-    }
-    
-    console.log('Query results:', result)
-    return c.json(result)
+
+    return c.json({
+      ordersToday: results[0].count,
+      customersTotal: results[1].count,
+      pendingDeliveries: results[2].count,
+      lowStockCount: results[3].count
+    })
   } catch (error) {
-    console.error('Database error:', error)
-    return c.json({ error: error.message }, 500)
+    console.error('Stats Error:', error)
+    return c.json({ error: 'Database error' }, 500)
   }
 })
 
@@ -77,13 +86,15 @@ api.post('/customers', async (c) => {
   }
 })
 
-// Son müşterileri getir
+// Son müşteriler
 api.get('/customers/recent', async (c) => {
   const db = c.env.DB
   try {
-    const { results } = await db
-      .prepare('SELECT * FROM customers ORDER BY created_at DESC LIMIT 5')
-      .all()
+    const { results } = await db.prepare(`
+      SELECT * FROM customers 
+      ORDER BY created_at DESC 
+      LIMIT 5
+    `).all()
     return c.json(results)
   } catch (error) {
     return c.json({ error: 'Database error' }, 500)
@@ -94,13 +105,13 @@ api.get('/customers/recent', async (c) => {
 api.get('/orders/today', async (c) => {
   const db = c.env.DB
   try {
-    const { results } = await db
-      .prepare(`
-        SELECT * FROM orders 
-        WHERE DATE(delivery_date) = DATE('now')
-        ORDER BY delivery_date ASC
-      `)
-      .all()
+    const { results } = await db.prepare(`
+      SELECT o.*, c.name as customer_name 
+      FROM orders o
+      LEFT JOIN customers c ON o.customer_id = c.id
+      WHERE DATE(o.delivery_date) = DATE('now')
+      ORDER BY o.delivery_date ASC
+    `).all()
     return c.json(results)
   } catch (error) {
     return c.json({ error: 'Database error' }, 500)
@@ -125,13 +136,17 @@ api.get('/orders', async (c) => {
   }
 })
 
-// Son siparişleri getir
+// Son siparişler
 api.get('/orders/recent', async (c) => {
   const db = c.env.DB
   try {
-    const { results } = await db
-      .prepare('SELECT * FROM orders ORDER BY created_at DESC LIMIT 5')
-      .all()
+    const { results } = await db.prepare(`
+      SELECT o.*, c.name as customer_name 
+      FROM orders o
+      LEFT JOIN customers c ON o.customer_id = c.id
+      ORDER BY o.created_at DESC 
+      LIMIT 5
+    `).all()
     return c.json(results)
   } catch (error) {
     return c.json({ error: 'Database error' }, 500)

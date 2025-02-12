@@ -12,55 +12,12 @@
     <div id="header"></div>
 
     <div class="container mt-4">
-        <!-- Dashboard bölümünü sayfanın en üstüne taşıdık -->
-        <section id="dashboard" class="my-4">
-            <div class="container">
-                <h1 class="text-center mb-4">Operasyonel Dashboard</h1>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card text-center">
-                            <div class="card-header">
-                                <strong>Düşük Stok Ürünleri</strong>
-                            </div>
-                            <ul class="list-group list-group-flush" id="low-stock-list">
-                                <!-- Liste dinamik yüklenecek -->
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card text-center">
-                            <div class="card-header">
-                                <strong>Sipariş Özeti</strong>
-                            </div>
-                            <div class="card-body">
-                                <p>Bugün: <span id="today-orders"></span></p>
-                                <p>Yarın: <span id="tomorrow-orders"></span></p>
-                                <p>Sonraki Gün: <span id="future-orders"></span></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card text-center">
-                            <div class="card-header">
-                                <strong>Teslimatlar</strong>
-                            </div>
-                            <div class="card-body">
-                                <p>Toplam Sipariş: <span id="total-orders"></span></p>
-                                <p>Teslim Edilen: <span id="delivered-orders"></span></p>
-                                <p>Kalan: <span id="pending-deliveries"></span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Mevcut istatistik kartları kısmı, istenirse kaldırılabilir ya da alt bilgi olarak kullanılabilir -->
+        <!-- İstatistik Kartları -->
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-box"></i> Siparişler</h5>
+                        <h5 class="card-title"><i class="bi bi-box"></i> Bugünkü Siparişler</h5>
                         <p class="card-text h3" id="ordersToday">Yükleniyor...</p>
                     </div>
                 </div>
@@ -68,25 +25,62 @@
             <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-people"></i> Müşteriler</h5>
-                        <p class="card-text h3" id="customersTotal">Yükleniyor...</p>
+                        <h5 class="card-title"><i class="bi bi-truck"></i> Bekleyen Teslimatlar</h5>
+                        <p class="card-text h3" id="pendingDeliveries">Yükleniyor...</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-truck"></i> Teslimatlar</h5>
-                        <p class="card-text h3" id="pendingDeliveries">Yükleniyor...</p>
+                        <h5 class="card-title"><i class="bi bi-exclamation-triangle"></i> Düşük Stok</h5>
+                        <p class="card-text h3" id="lowStockCount">Yükleniyor...</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="alert alert-info mt-4" id="status">
-            <i class="bi bi-info-circle"></i> Durum: Yükleniyor...
+        <!-- Operasyonel Bilgiler -->
+        <div class="row g-3 mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-calendar3"></i> Teslimat Programı
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Bugün:</span>
+                            <strong id="today-orders">Yükleniyor...</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Yarın:</span>
+                            <strong id="tomorrow-orders">Yükleniyor...</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Gelecek Hafta:</span>
+                            <strong id="future-orders">Yükleniyor...</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-box-seam"></i> Stok Durumu
+                        </h5>
+                    </div>
+                    <div class="list-group list-group-flush" id="low-stock-list">
+                        <div class="list-group-item text-center">Yükleniyor...</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
+        <!-- Son İşlemler -->
         <div class="row g-3 mt-4">
             <div class="col-md-6">
                 <div class="card">
@@ -112,6 +106,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="alert alert-info mt-4" id="status">
+            <i class="bi bi-info-circle"></i> Durum: Yükleniyor...
         </div>
     </div>
 
