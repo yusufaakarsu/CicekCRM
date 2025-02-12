@@ -94,6 +94,24 @@ api.get('/orders/today', async (c) => {
   }
 })
 
+// Tüm siparişleri listele
+api.get('/orders', async (c) => {
+  const db = c.env.DB
+  try {
+    const { results } = await db
+      .prepare(`
+        SELECT o.*, c.name as customer_name 
+        FROM orders o
+        LEFT JOIN customers c ON o.customer_id = c.id
+        ORDER BY o.delivery_date DESC
+      `)
+      .all()
+    return c.json(results)
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
 // Takvim görünümü için siparişler
 api.get('/orders/calendar', async (c) => {
   const { start, end } = c.req.query()
