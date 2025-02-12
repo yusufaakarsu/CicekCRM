@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
 </head>
-<body>
+<body data-page="dashboard">
     <div id="header"></div>
 
     <div class="container mt-4">
@@ -47,15 +47,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/common.js"></script>
     <script>
-        // Header'ı yükle
-        fetch('/common/header.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('header').innerHTML = html;
-                document.querySelector('[data-page="dashboard"]').classList.add('active');
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHeader();
+            loadStats();
+            setInterval(loadStats, 30000);
+        });
 
-        // API verilerini yükle
         async function loadStats() {
             try {
                 const response = await fetch(`${API_URL}/stats`);
@@ -73,12 +70,6 @@
                 `;
             }
         }
-
-        // Sayfa yüklendiğinde ve her 30 saniyede bir güncelle
-        document.addEventListener('DOMContentLoaded', () => {
-            loadStats();
-            setInterval(loadStats, 30000);
-        });
     </script>
 </body>
 </html>
