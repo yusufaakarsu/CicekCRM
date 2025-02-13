@@ -23,8 +23,13 @@ api.get('/stats', async (c) => {
         WHERE DATE(delivery_date) = DATE('now')`
       ).first(),
       
-      // Toplam müşteri sayısı
-      db.prepare('SELECT COUNT(*) as count FROM customers').first(),
+      // Teslim edilen siparişler
+      db.prepare(`
+        SELECT COUNT(*) as count 
+        FROM orders 
+        WHERE status = 'delivered' 
+        AND DATE(delivery_date) = DATE('now')`
+      ).first(),
       
       // Bekleyen teslimatlar
       db.prepare(`
@@ -43,7 +48,7 @@ api.get('/stats', async (c) => {
 
     return c.json({
       ordersToday: results[0].count,
-      customersTotal: results[1].count,
+      deliveredToday: results[1].count,
       pendingDeliveries: results[2].count,
       lowStockCount: results[3].count
     })

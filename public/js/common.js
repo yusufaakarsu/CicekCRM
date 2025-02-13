@@ -77,7 +77,7 @@ async function loadDashboardData() {
 
         // İstatistik kartları
         document.getElementById('ordersToday').textContent = `${stats.ordersToday} Sipariş`;
-        document.getElementById('pendingDeliveries').textContent = `${stats.deliveredToday}/${stats.pendingDeliveries} Teslimat`;
+        document.getElementById('pendingDeliveries').textContent = `${stats.deliveredToday} / ${stats.pendingDeliveries} Teslimat`;
         document.getElementById('lowStockCount').textContent = `${stats.lowStockCount} Ürün`;
 
         // Teslimat programı - 3 günlük
@@ -107,7 +107,6 @@ async function loadDashboardData() {
         if (recentOrders.length > 0) {
             recentOrdersTable.innerHTML = recentOrders.map(order => `
                 <tr>
-                    <td>${order.id}</td>
                     <td>${order.customer_name}</td>
                     <td>${order.items.map(item => `${item.quantity}x ${item.name}`).join('<br>')}</td>
                     <td>
