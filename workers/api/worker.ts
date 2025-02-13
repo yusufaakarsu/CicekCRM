@@ -69,6 +69,96 @@ api.get('/api/dashboard', async (c) => {
   }
 });
 
+// Finans istatistikleri
+api.get('/api/finance/stats', async (c) => {
+  const db = c.env.DB;
+  try {
+    const [dailyRevenue, monthlyIncome, pendingPayments, paymentStatus] = await Promise.all([
+      // Günlük ciro
+      db.prepare(`
+        SELECT COALESCE(SUM(total_amount), 0) as revenue
+        FROM orders 
+        WHERE DATE(created_at) = DATE('now')
+        AND status != 'cancelled'
+      `).first(),
+
+      // Aylık gelir
+      db.prepare(`
+        SELECT COALESCE(SUM(total_amount), 0) as revenue
+        FROM orders 
+        WHERE strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')
+        AND status != 'cancelled'
+      `).first(),
+
+      // Bekleyen ödemeler
+      db.prepare(`
+        SELECT COALESCE(SUM(total_amount), 0) as amount
+        FROM orders 
+        WHERE payment_status = 'pending'
+      `).first(),
+
+      // Ödeme durumu dağılımı
+      db.prepare(`
+        SELECT 
+          COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as paid,
+          COUNT(CASE WHEN payment_status = 'pending' THEN 1 END) as pending,
+          COUNT(CASE WHEN payment_status = 'cancelled' THEN 1 END) as cancelled
+        FROM orders
+      `).first()
+    ]);
+
+    // Kar marjı hesapla
+    const costs = await db.prepare(`
+      SELECT COALESCE(SUM(oi.quantity * oi.cost_price), 0) as total_cost
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      WHERE strftime('%Y-%m', o.created_at) = strftime('%Y-%m', 'now')
+      AND o.status != 'cancelled'
+    `).first();
+
+    const profitMargin = monthlyIncome.revenue > 0 
+      ? Math.round((monthlyIncome.revenue - costs.total_cost) / monthlyIncome.revenue * 100) 
+      : 0;
+
+    return c.json({
+      dailyRevenue: dailyRevenue.revenue,
+      monthlyIncome: monthlyIncome.revenue,
+      pendingPayments: pendingPayments.amount,
+      profitMargin,
+      paymentStatus
+    });
+
+  } catch (error) {
+    console.error('Finance stats error:', error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
+});
+
+// Son finansal işlemler
+api.get('/api/finance/transactions', async (c) => {
+  const db = c.env.DB;
+  try {
+    const { results } = await db.prepare(`
+      SELECT 
+        o.id as order_id,
+        o.created_at,
+        o.total_amount as amount,
+        o.payment_status as status,
+        c.name as customer_name
+      FROM orders o
+      LEFT JOIN customers c ON o.customer_id = c.id
+      ORDER BY o.created_at DESC
+      LIMIT 20
+    `).all();
+
+    return c.json(results);
+
+  } catch (error) {
+    console.error('Transactions error:', error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
+});
+
 // Müşterileri listele
 api.get('/customers', async (c) => {
   const db = c.env.DB
