@@ -16,12 +16,12 @@ api.get('/api/dashboard', async (c) => {
   const db = c.env.DB;
 
   try {
-    // 1. SADECE BUGÜNÜN teslimat durumu
+    // 1. Bugünün teslimat durumu - Toplam ve teslim durumları
     const todayDeliveries = await db.prepare(`
       SELECT 
         COUNT(*) as total_orders,
         SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered_orders,
-        COUNT(CASE WHEN status IN ('new', 'preparing', 'delivering') THEN 1 END) as pending_orders
+        SUM(CASE WHEN status NOT IN ('delivered', 'cancelled') THEN 1 END) as pending_orders
       FROM orders 
       WHERE DATE(delivery_date) = DATE('now')
     `).first();
@@ -40,11 +40,11 @@ api.get('/api/dashboard', async (c) => {
       ORDER BY needed_quantity DESC
     `).all();
 
-    // 3. Gelecek 3 günün sipariş sayıları
+    // 3. Teslimat programı - Delivered siparişleri hariç tut
     const orderSummary = await db.prepare(`
       SELECT 
         date(delivery_date) as date,
-        COUNT(*) as count
+        COUNT(CASE WHEN status != 'delivered' THEN 1 END) as count
       FROM orders
       WHERE date(delivery_date) BETWEEN date('now') AND date('now', '+2 days')
       GROUP BY date(delivery_date)

@@ -25,16 +25,16 @@
             <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-truck"></i> Bekleyen Teslimatlar</h5>
-                        <p class="card-text h3" id="pendingDeliveries">0 / 0 Teslimat</p>
+                        <h5 class="card-title"><i class="bi bi-check-circle"></i> Teslim Edilen Siparişler</h5>
+                        <p class="card-text h3" id="deliveredOrders">Yükleniyor...</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-exclamation-triangle"></i> Düşük Stok</h5>
-                        <p class="card-text h3" id="lowStockCount">Yükleniyor...</p>
+                        <h5 class="card-title"><i class="bi bi-truck"></i> Bekleyen Teslimatlar</h5>
+                        <p class="card-text h3" id="pendingDeliveries">Yükleniyor...</p>
                     </div>
                 </div>
             </div>
@@ -42,6 +42,18 @@
 
         <!-- Operasyonel Bilgiler -->
         <div class="row g-3 mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-exclamation-triangle"></i> Düşük Stok
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="h3" id="lowStockCount">Yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
@@ -62,19 +74,6 @@
                             <span>Sonraki Gün:</span>
                             <strong id="future-orders">Yükleniyor...</strong>
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-box-seam"></i> Yarın İçin Gerekli Ürünler
-                        </h5>
-                    </div>
-                    <div class="list-group list-group-flush" id="low-stock-list">
-                        <div class="list-group-item text-center">Yükleniyor...</div>
                     </div>
                 </div>
             </div>
