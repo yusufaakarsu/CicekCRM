@@ -10,21 +10,18 @@ async function loadDashboardData() {
         const response = await fetch(`${API_URL}/api/dashboard`);
         const data = await response.json();
         
-        // Bugünün teslimatları
-        document.getElementById('delivered-count').textContent = data.deliveryStats.delivered_orders;
-        document.getElementById('total-deliveries').textContent = data.deliveryStats.total_orders;
-        document.getElementById('pending-count').textContent = `${data.deliveryStats.pending_orders} bekleyen teslimat`;
-
-        // Yarının ürün ihtiyaçları - TÜM ÜRÜNLERİ GÖSTER
+        // Bugünün teslimat durumu
+        document.getElementById('pendingDeliveries').innerHTML = 
+            `${data.deliveryStats.delivered_orders} / ${data.deliveryStats.total_orders} Teslimat
+            <p class="text-muted">${data.deliveryStats.pending_orders} bekleyen teslimat</p>`;
+        
+        // Yarının ürün ihtiyaçları
         const stockList = document.getElementById('low-stock-list');
         if (data.tomorrowNeeds && data.tomorrowNeeds.length > 0) {
             stockList.innerHTML = data.tomorrowNeeds.map(item => `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <span>${item.name}</span>
-                    <div>
-                        <span class="badge bg-info">Stok: ${item.current_stock}</span>
-                        <span class="badge bg-warning ms-2">İhtiyaç: ${item.needed_quantity}</span>
-                    </div>
+                    <span>İhtiyaç: ${item.needed_quantity} adet</span>
                 </div>
             `).join('');
         } else {
