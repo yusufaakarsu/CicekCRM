@@ -37,8 +37,6 @@ next-env.d.ts
 # Workers
 /workers/
 
-# Ignore migrations in development
-/migrations/
 
 
 
