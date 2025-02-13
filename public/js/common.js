@@ -1,4 +1,4 @@
-// API URL'i tanımla (en üstte olmalı)
+// API URL'ini düzelt
 const API_URL = 'https://cicek-crm-api.yusufaakarsu.workers.dev';
 
 // Header yükleme fonksiyonu

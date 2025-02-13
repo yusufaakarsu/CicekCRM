@@ -7,10 +7,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadDashboardData() {
     try {
+        console.log('API çağrısı yapılıyor:', `${API_URL}/api/dashboard`);
         const response = await fetch(`${API_URL}/api/dashboard`);
-        if (!response.ok) throw new Error('API yanıt vermedi');
+        
+        if (!response.ok) {
+            console.error('API Hata:', response.status, response.statusText);
+            throw new Error(`API yanıt vermedi: ${response.status}`);
+        }
         
         const data = await response.json();
+        console.log('API Yanıt:', data);
         
         // Teslimat istatistikleri
         const { deliveryStats } = data;
@@ -47,7 +53,7 @@ async function loadDashboardData() {
     } catch (error) {
         console.error('Dashboard hatası:', error);
         document.getElementById('status').innerHTML = `
-            <i class="bi bi-exclamation-triangle"></i> Bağlantı hatası: ${error.message}
+            <i class="bi bi-exclamation-triangle"></i> Hata: ${error.message}
         `;
     }
 }
