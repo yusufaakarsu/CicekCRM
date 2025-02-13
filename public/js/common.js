@@ -108,3 +108,34 @@ async function loadDashboardData() {
         `;
     }
 }
+
+async function loadRecentOrders() {
+    try {
+        const response = await fetch(`${API_URL}/orders/recent-detailed`);
+        if (!response.ok) throw new Error('API Hatası');
+        const orders = await response.json();
+        
+        const recentOrdersTable = document.getElementById('recentOrders').getElementsByTagName('tbody')[0];
+        
+        if (orders && orders.length > 0) {
+            recentOrdersTable.innerHTML = orders.map(order => `
+                <tr>
+                    <td>${order.customer_name}</td>
+                    <td>${order.items ? order.items.map(item => `${item.quantity}x ${item.name}`).join('<br>') : '-'}</td>
+                    <td>
+                        ${formatDate(order.delivery_date)}<br>
+                        <small class="text-muted">${order.delivery_address}</small>
+                    </td>
+                    <td>${getStatusBadge(order.status)}</td>
+                    <td>${formatCurrency(order.total_amount)}</td>
+                </tr>
+            `).join('');
+        } else {
+            recentOrdersTable.innerHTML = '<tr><td colspan="5" class="text-center">Sipariş bulunamadı</td></tr>';
+        }
+    } catch (error) {
+        console.error('Recent orders error:', error);
+        document.getElementById('recentOrders').getElementsByTagName('tbody')[0].innerHTML = 
+            '<tr><td colspan="5" class="text-center text-danger">Siparişler yüklenirken hata oluştu!</td></tr>';
+    }
+}
