@@ -63,29 +63,27 @@ api.get('/api/dashboard', async (c) => {
   const db = c.env.DB;
 
   try {
-    // 1. Bugünün teslimat durumu
+    // 1. SADECE BUGÜNÜN teslimat durumu
     const todayDeliveries = await db.prepare(`
       SELECT 
         COUNT(*) as total_orders,
         SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered_orders,
-        SUM(CASE WHEN status != 'delivered' AND status != 'cancelled' THEN 1 ELSE 0 END) as pending_orders
+        COUNT(CASE WHEN status IN ('new', 'preparing', 'delivering') THEN 1 END) as pending_orders
       FROM orders 
-      WHERE date(delivery_date) = date('now')
+      WHERE DATE(delivery_date) = DATE('now')
     `).first();
 
-    // 2. Yarının siparişleri için ürün bazında ihtiyaç
+    // 2. Yarının siparişleri için ürün ihtiyacı
     const tomorrowNeeds = await db.prepare(`
       SELECT 
-        p.id,
         p.name,
         p.stock as current_stock,
-        COALESCE(SUM(oi.quantity), 0) as needed_quantity
-      FROM products p
-      LEFT JOIN order_items oi ON p.id = oi.product_id
-      LEFT JOIN orders o ON oi.order_id = o.id 
-      WHERE date(o.delivery_date) = date('now', '+1 day')
+        SUM(oi.quantity) as needed_quantity
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN products p ON oi.product_id = p.id
+      WHERE DATE(o.delivery_date) = DATE('now', '+1 day')
       GROUP BY p.id, p.name, p.stock
-      HAVING needed_quantity > 0
       ORDER BY needed_quantity DESC
     `).all();
 

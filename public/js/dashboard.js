@@ -15,14 +15,21 @@ async function loadDashboardData() {
         document.getElementById('total-deliveries').textContent = data.deliveryStats.total_orders;
         document.getElementById('pending-count').textContent = `${data.deliveryStats.pending_orders} bekleyen teslimat`;
 
-        // Yarın için gerekli ürünler
-        document.getElementById('low-stock-list').innerHTML = 
-            data.tomorrowNeeds.map(item => `
+        // Yarının ürün ihtiyaçları - TÜM ÜRÜNLERİ GÖSTER
+        const stockList = document.getElementById('low-stock-list');
+        if (data.tomorrowNeeds && data.tomorrowNeeds.length > 0) {
+            stockList.innerHTML = data.tomorrowNeeds.map(item => `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <span>${item.name}</span>
-                    <span>İhtiyaç: ${item.needed_quantity} adet</span>
+                    <div>
+                        <span class="badge bg-info">Stok: ${item.current_stock}</span>
+                        <span class="badge bg-warning ms-2">İhtiyaç: ${item.needed_quantity}</span>
+                    </div>
                 </div>
-            `).join('') || '<div class="list-group-item">Yarın için sipariş yok</div>';
+            `).join('');
+        } else {
+            stockList.innerHTML = '<div class="list-group-item">Yarın için sipariş yok</div>';
+        }
 
         // İstatistik kartları güncelleme
         document.getElementById('ordersToday').textContent = `${data.ordersToday} Sipariş`;
