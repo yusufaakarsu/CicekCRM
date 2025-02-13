@@ -25,13 +25,13 @@ async function loadCustomers() {
                     <td>${customer.last_order ? formatDate(customer.last_order) : 'Sipariş yok'}</td>
                     <td>${customer.total_orders || 0}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick="showCustomerDetails(${customer.id})">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="showCustomerDetails('${customer.id}')">
                             <i class="bi bi-info-circle"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editCustomer(${customer.id})">
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editCustomer('${customer.id}')">
                             <i class="bi bi-pencil"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-success" onclick="newOrder(${customer.id})">
+                        <button class="btn btn-sm btn-outline-success" onclick="newOrder('${customer.id}')">
                             <i class="bi bi-plus-lg"></i> Sipariş
                         </button>
                     </td>
