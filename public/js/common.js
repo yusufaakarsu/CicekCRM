@@ -66,64 +66,43 @@ function getStatusBadge(status) {
 
 async function loadDashboardData() {
     try {
-        const [statsResponse, lowStockResponse, orderSummaryResponse] = await Promise.all([
-            fetch(`${API_URL}/stats`),
-            fetch(`${API_URL}/products/low-stock`),
-            fetch(`${API_URL}/orders/summary`)
-        ]);
+        const response = await fetch(`${API_URL}/api/dashboard`);
+        if (!response.ok) throw new Error('API Hatası');
+        const data = await response.json();
 
-        const stats = await statsResponse.json();
-        const lowStock = await lowStockResponse.json();
-        const orderSummary = await orderSummaryResponse.json();
+        // İstatistik kartları güncelleme
+        document.getElementById('ordersToday').textContent = `${data.deliveryStats.total_orders} Sipariş`;
+        document.getElementById('pendingDeliveries').innerHTML = 
+            `${data.deliveryStats.delivered_orders} / ${data.deliveryStats.total_orders} Teslimat
+            <p class="text-muted">${data.deliveryStats.pending_orders} bekleyen teslimat</p>`;
 
-        // İstatistik kartları
-        document.getElementById('ordersToday').textContent = `${stats.ordersToday} Sipariş`;
-        document.getElementById('pendingDeliveries').textContent = `${stats.deliveredToday} / ${stats.pendingDeliveries} Teslimat`;
-        document.getElementById('lowStockCount').textContent = `${stats.lowStockCount} Ürün`;
-
-        // Teslimat programı - 3 günlük
-        document.getElementById('today-orders').textContent = `${orderSummary.today} Sipariş`;
-        document.getElementById('tomorrow-orders').textContent = `${orderSummary.tomorrow} Sipariş`;
-        document.getElementById('future-orders').textContent = `${orderSummary.nextDay} Sipariş`;
-
-        // Düşük stok listesi
-        const lowStockList = document.getElementById('low-stock-list');
-        if (lowStock.length > 0) {
-            lowStockList.innerHTML = lowStock
-                .map(item => `
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>${item.name}</span>
-                        <span class="badge bg-warning">${item.stock} adet</span>
-                    </div>
-                `).join('');
-        } else {
-            lowStockList.innerHTML = '<div class="list-group-item text-center">Düşük stok yok</div>';
-        }
-
-        // Son siparişler tablosu
-        const recentOrdersTable = document.getElementById('recentOrders').getElementsByTagName('tbody')[0];
-        const recentOrdersResponse = await fetch(`${API_URL}/orders/recent-detailed`);
-        const recentOrders = await recentOrdersResponse.json();
-        
-        if (recentOrders.length > 0) {
-            recentOrdersTable.innerHTML = recentOrders.map(order => `
-                <tr>
-                    <td>${order.customer_name}</td>
-                    <td>${order.items.map(item => `${item.quantity}x ${item.name}`).join('<br>')}</td>
-                    <td>
-                        ${formatDate(order.delivery_date)}<br>
-                        <small class="text-muted">${order.delivery_address}</small>
-                    </td>
-                    <td>${getStatusBadge(order.status)}</td>
-                    <td>${formatCurrency(order.total_amount)}</td>
-                </tr>
+        // Yarının ürün ihtiyaçları
+        const stockList = document.getElementById('low-stock-list');
+        if (data.tomorrowNeeds.results && data.tomorrowNeeds.results.length > 0) {
+            stockList.innerHTML = data.tomorrowNeeds.results.map(item => `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>${item.name}</span>
+                    <span>İhtiyaç: ${item.needed_quantity} adet</span>
+                </div>
             `).join('');
         }
+
+        // Teslimat programı güncelleme
+        const summary = data.orderSummary.results;
+        if (summary && summary.length >= 3) {
+            document.getElementById('today-orders').textContent = `${summary[0].count} Sipariş`;
+            document.getElementById('tomorrow-orders').textContent = `${summary[1].count} Sipariş`;
+            document.getElementById('future-orders').textContent = `${summary[2].count} Sipariş`;
+        }
+
+        // Düşük stok sayısı
+        document.getElementById('lowStockCount').textContent = `${data.lowStock} Ürün`;
 
         document.getElementById('status').innerHTML = `
             <i class="bi bi-check-circle"></i> Son güncelleme: ${new Date().toLocaleTimeString()}
         `;
     } catch (error) {
+        console.error('Dashboard hatası:', error);
         document.getElementById('status').innerHTML = `
             <i class="bi bi-exclamation-triangle"></i> Bağlantı hatası!
         `;

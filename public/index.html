@@ -125,13 +125,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             loadHeader();
-            loadDashboardData();  // loadStats yerine loadDashboardData kullan
-            loadRecentCustomers();
+            loadDashboardData();
             loadRecentOrders();
-            setInterval(loadDashboardData, 30000);  // Bu interval'i de güncelle
+            setInterval(loadDashboardData, 30000);
         });
-
-        // loadStats fonksiyonunu kaldır, artık common.js'deki loadDashboardData kullanılıyor
     </script>
 </body>
 </html>
