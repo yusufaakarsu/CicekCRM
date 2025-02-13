@@ -27,7 +27,7 @@ api.get('/api/dashboard', async (c) => {
     `).first();
 
     // 2. Yarının siparişleri için ürün ihtiyacı
-    const tomorrowNeeds = await db.prepare(`
+    const { results: tomorrowNeeds } = await db.prepare(`
       SELECT 
         p.name,
         p.stock as current_stock,
@@ -40,11 +40,11 @@ api.get('/api/dashboard', async (c) => {
       ORDER BY needed_quantity DESC
     `).all();
 
-    // 3. Teslimat programı - Delivered siparişleri hariç tut
-    const orderSummary = await db.prepare(`
+    // 3. Teslimat programı
+    const { results: orderSummary } = await db.prepare(`
       SELECT 
         date(delivery_date) as date,
-        COUNT(CASE WHEN status != 'delivered' THEN 1 END) as count
+        COUNT(*) as count
       FROM orders
       WHERE date(delivery_date) BETWEEN date('now') AND date('now', '+2 days')
       GROUP BY date(delivery_date)
@@ -60,8 +60,8 @@ api.get('/api/dashboard', async (c) => {
 
     return c.json({
       deliveryStats: todayDeliveries,
-      tomorrowNeeds: tomorrowNeeds,
-      orderSummary: orderSummary,
+      tomorrowNeeds,
+      orderSummary,
       lowStock: lowStock.count
     });
 
