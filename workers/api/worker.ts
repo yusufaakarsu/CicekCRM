@@ -384,4 +384,75 @@ api.get('/orders/recent-detailed', async (c) => {
   }
 })
 
+// Müşteri detaylarını getir
+api.get('/customers/:id', async (c) => {
+  const db = c.env.DB;
+  const { id } = c.req.param();
+  
+  try {
+    // Müşteri bilgileri ve sipariş özeti
+    const customer = await db.prepare(`
+      SELECT 
+        c.*,
+        COUNT(o.id) as total_orders,
+        MAX(o.created_at) as last_order,
+        SUM(o.total_amount) as total_spent
+      FROM customers c
+      LEFT JOIN orders o ON c.id = o.customer_id
+      WHERE c.id = ?
+      GROUP BY c.id
+    `).bind(id).first();
+
+    if (!customer) {
+      return c.json({ error: 'Customer not found' }, 404);
+    }
+
+    return c.json(customer);
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
+// Müşterinin siparişlerini getir
+api.get('/customers/:id/orders', async (c) => {
+  const db = c.env.DB;
+  const { id } = c.req.param();
+  
+  try {
+    const { results: orders } = await db.prepare(`
+      SELECT o.*, GROUP_CONCAT(oi.quantity || 'x ' || p.name) as items
+      FROM orders o
+      LEFT JOIN order_items oi ON o.id = oi.order_id
+      LEFT JOIN products p ON oi.product_id = p.id
+      WHERE o.customer_id = ?
+      GROUP BY o.id
+      ORDER BY o.created_at DESC
+      LIMIT 10
+    `).bind(id).all();
+
+    return c.json(orders);
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
+// Müşteri güncelle
+api.put('/customers/:id', async (c) => {
+  const db = c.env.DB;
+  const { id } = c.req.param();
+  const body = await c.req.json();
+  
+  try {
+    await db.prepare(`
+      UPDATE customers 
+      SET name = ?, phone = ?, email = ?, address = ?
+      WHERE id = ?
+    `).bind(body.name, body.phone, body.email, body.address, id).run();
+
+    return c.json({ success: true });
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
 export default api
