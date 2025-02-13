@@ -10,9 +10,21 @@ async function loadDashboardData() {
         const response = await fetch(`${API_URL}/stats`);
         const data = await response.json();
         
+        // Bugünün teslimatları - SADECE BUGÜNÜN VERİLERİ
+        document.getElementById('pendingDeliveries').textContent = 
+            `${data.deliveredToday} / ${data.ordersToday} Teslimat`;
+
+        // Yarının siparişleri için stok ihtiyacı
+        document.getElementById('low-stock-list').innerHTML = 
+            data.tomorrowNeeds.map(item => `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>${item.name}</span>
+                    <span>İhtiyaç: ${item.needed_quantity} adet</span>
+                </div>
+            `).join('') || '<div class="list-group-item">Yarın için sipariş yok</div>';
+
         // İstatistik kartları güncelleme
         document.getElementById('ordersToday').textContent = `${data.ordersToday} Sipariş`;
-        document.getElementById('pendingDeliveries').textContent = `${data.pendingDeliveries} Teslimat`;
         document.getElementById('lowStockCount').textContent = `${data.lowStockCount} Ürün`;
 
         // Teslimat programı güncelleme
@@ -20,21 +32,11 @@ async function loadDashboardData() {
         document.getElementById('tomorrow-orders').textContent = `${data.ordersTomorrow} Sipariş`;
         document.getElementById('future-orders').textContent = `${data.ordersWeek} Sipariş`;
 
-        // Düşük stok listesi güncelleme
-        if (data.lowStockItems && data.lowStockItems.length > 0) {
-            document.getElementById('low-stock-list').innerHTML = data.lowStockItems
-                .map(item => `
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>${item.name}</span>
-                        <span class="badge bg-warning">${item.stock} adet</span>
-                    </div>
-                `).join('');
-        }
-
         document.getElementById('status').innerHTML = `
             <i class="bi bi-check-circle"></i> Son güncelleme: ${new Date().toLocaleTimeString()}
         `;
     } catch (error) {
+        console.error('Dashboard error:', error);
         document.getElementById('status').innerHTML = `
             <i class="bi bi-exclamation-triangle"></i> Bağlantı hatası!
         `;
