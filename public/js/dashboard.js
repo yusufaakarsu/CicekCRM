@@ -10,23 +10,21 @@ async function loadDashboardData() {
         const response = await fetch(`${API_URL}/api/dashboard`);
         const data = await response.json();
         
-        // Bugünün teslimat durumu
+        // Bugünün teslimatları - BU KISIM ÖNEMLİ
+        const deliveryStats = data.deliveryStats;
+        document.getElementById('ordersToday').textContent = `${deliveryStats.total_orders} Sipariş`;
         document.getElementById('pendingDeliveries').innerHTML = 
-            `${data.deliveryStats.delivered_orders} / ${data.deliveryStats.total_orders} Teslimat
-            <p class="text-muted">${data.deliveryStats.pending_orders} bekleyen teslimat</p>`;
-        
-        // Yarının ürün ihtiyaçları
+            `${deliveryStats.delivered_orders} / ${deliveryStats.total_orders} Teslimat
+            <p class="text-muted">${deliveryStats.pending_orders} bekleyen teslimat</p>`;
+
+        // Yarının ürün ihtiyaçları - BÜTÜN LİSTEYİ GÖSTER
         const stockList = document.getElementById('low-stock-list');
-        if (data.tomorrowNeeds && data.tomorrowNeeds.length > 0) {
-            stockList.innerHTML = data.tomorrowNeeds.map(item => `
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>${item.name}</span>
-                    <span>İhtiyaç: ${item.needed_quantity} adet</span>
-                </div>
-            `).join('');
-        } else {
-            stockList.innerHTML = '<div class="list-group-item">Yarın için sipariş yok</div>';
-        }
+        stockList.innerHTML = data.tomorrowNeeds.map(item => `
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span>${item.name}</span>
+                <span>İhtiyaç: ${item.needed_quantity} adet</span>
+            </div>
+        `).join('') || '<div class="list-group-item">Yarın için sipariş yok</div>';
 
         // İstatistik kartları güncelleme
         document.getElementById('ordersToday').textContent = `${data.ordersToday} Sipariş`;

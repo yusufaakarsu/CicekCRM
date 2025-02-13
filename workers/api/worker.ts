@@ -11,54 +11,7 @@ api.use('*', cors({
 
 api.get('/', () => new Response('API Running'))
 
-// Ana sayfa istatistikleri için endpoint
-api.get('/stats', async (c) => {
-  const db = c.env.DB
-  try {
-    const results = await Promise.all([
-      // Bugünkü siparişler
-      db.prepare(`
-        SELECT COUNT(*) as count 
-        FROM orders 
-        WHERE DATE(delivery_date) = DATE('now')`
-      ).first(),
-      
-      // Teslim edilen siparişler
-      db.prepare(`
-        SELECT COUNT(*) as count 
-        FROM orders 
-        WHERE status = 'delivered' 
-        AND DATE(delivery_date) = DATE('now')`
-      ).first(),
-      
-      // Bekleyen teslimatlar
-      db.prepare(`
-        SELECT COUNT(*) as count 
-        FROM orders 
-        WHERE status IN ('new', 'preparing', 'delivering')`
-      ).first(),
-
-      // Düşük stok ürünleri
-      db.prepare(`
-        SELECT COUNT(*) as count 
-        FROM products 
-        WHERE stock <= min_stock`
-      ).first()
-    ])
-
-    return c.json({
-      ordersToday: results[0].count,
-      deliveredToday: results[1].count,
-      pendingDeliveries: results[2].count,
-      lowStockCount: results[3].count
-    })
-  } catch (error) {
-    console.error('Stats Error:', error)
-    return c.json({ error: 'Database error' }, 500)
-  }
-})
-
-// Dashboard endpoint'ini güncelle
+// Ana sayfa istatistikleri için tek endpoint
 api.get('/api/dashboard', async (c) => {
   const db = c.env.DB;
 
