@@ -72,7 +72,7 @@ async function loadDashboardData() {
 
         // İstatistik kartları güncelleme
         document.getElementById('ordersToday').textContent = `${data.deliveryStats.total_orders} Sipariş`;
-        document.getElementById('deliveredOrders').textContent = `${data.deliveryStats.delivered_orders} teslim edildi`;
+        document.getElementById('deliveredOrders').textContent = `${data.deliveryStats.delivered_orders} Teslim Edilen`;
         document.getElementById('pendingDeliveries').textContent = `${data.deliveryStats.pending_orders} Teslimat`;
 
         // Teslimat programı güncelleme
