@@ -58,6 +58,44 @@ api.get('/stats', async (c) => {
   }
 })
 
+// Dashboard endpoint'i
+api.get('/api/dashboard', async (c) => {
+  const db = c.env.DB;
+
+  // Bugünün teslimatları
+  const todayDeliveries = await db.prepare(`
+    SELECT 
+      COUNT(*) as total_orders,
+      SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered_orders,
+      SUM(CASE WHEN status != 'delivered' AND status != 'cancelled' THEN 1 ELSE 0 END) as pending_orders
+    FROM orders 
+    WHERE date(delivery_date) = date('now')
+  `).first();
+
+  // Yarının siparişleri için stok ihtiyacı
+  const tomorrowStock = await db.prepare(`
+    WITH tomorrow_orders AS (
+      SELECT 
+        p.id,
+        p.name,
+        SUM(oi.quantity) as needed_quantity
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN products p ON oi.product_id = p.id
+      WHERE date(o.delivery_date) = date('now', '+1 day')
+      GROUP BY p.id, p.name
+      HAVING needed_quantity > 0
+      ORDER BY needed_quantity DESC
+    )
+    SELECT * FROM tomorrow_orders
+  `).all();
+
+  return c.json({
+    deliveryStats: todayDeliveries,
+    tomorrowNeeds: tomorrowStock
+  });
+});
+
 // Müşterileri listele
 api.get('/customers', async (c) => {
   const db = c.env.DB
