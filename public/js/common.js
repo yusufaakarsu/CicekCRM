@@ -72,31 +72,32 @@ async function loadDashboardData() {
 
         // İstatistik kartları güncelleme
         document.getElementById('ordersToday').textContent = `${data.deliveryStats.total_orders} Sipariş`;
-        document.getElementById('deliveredOrders').textContent = data.deliveryStats.delivered_orders;
+        document.getElementById('deliveredOrders').textContent = `${data.deliveryStats.delivered_orders} teslim edildi`;
         document.getElementById('pendingDeliveries').textContent = `${data.deliveryStats.pending_orders} Teslimat`;
+
+        // Teslimat programı güncelleme
+        const summary = data.orderSummary;
+        document.getElementById('today-orders').textContent = `${summary[0]?.count || 0} Sipariş`;
+        document.getElementById('tomorrow-orders').textContent = `${summary[1]?.count || 0} Sipariş`;
+        document.getElementById('future-orders').textContent = `${summary[2]?.count || 0} Sipariş`;
 
         // Yarının ürün ihtiyaçları
         const stockList = document.getElementById('low-stock-list');
-        if (data.tomorrowNeeds.results && data.tomorrowNeeds.results.length > 0) {
-            stockList.innerHTML = data.tomorrowNeeds.results.map(item => `
+        if (data.tomorrowNeeds && data.tomorrowNeeds.length > 0) {
+            stockList.innerHTML = data.tomorrowNeeds.map(item => `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <span>${item.name}</span>
                     <span>İhtiyaç: ${item.needed_quantity} adet</span>
                 </div>
             `).join('');
+        } else {
+            stockList.innerHTML = '<div class="list-group-item">Yarın için sipariş yok</div>';
         }
 
-        // Teslimat programı güncelleme
-        const summary = data.orderSummary.results;
-        if (summary && summary.length >= 3) {
-            document.getElementById('today-orders').textContent = `${summary[0].count} Sipariş`;
-            document.getElementById('tomorrow-orders').textContent = `${summary[1].count} Sipariş`;
-            document.getElementById('future-orders').textContent = `${summary[2].count} Sipariş`;
-        }
-
-        // Düşük stok sayısı
+        // Düşük stok
         document.getElementById('lowStockCount').textContent = `${data.lowStock} Ürün`;
 
+        // Son güncelleme
         document.getElementById('status').innerHTML = `
             <i class="bi bi-check-circle"></i> Son güncelleme: ${new Date().toLocaleTimeString()}
         `;

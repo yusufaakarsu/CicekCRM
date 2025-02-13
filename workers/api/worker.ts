@@ -16,47 +16,45 @@ api.get('/api/dashboard', async (c) => {
   const db = c.env.DB;
 
   try {
-    // 1. Bugünün teslimat durumu - Toplam ve teslim durumları
-    const todayDeliveries = await db.prepare(`
-      SELECT 
-        COUNT(*) as total_orders,
-        SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered_orders,
-        SUM(CASE WHEN status NOT IN ('delivered', 'cancelled') THEN 1 END) as pending_orders
-      FROM orders 
-      WHERE DATE(delivery_date) = DATE('now')
-    `).first();
+    const [todayDeliveries, { results: tomorrowNeeds }, { results: orderSummary }, lowStock] = await Promise.all([
+      // 1. Bugünün teslimat durumu
+      db.prepare(`
+        SELECT 
+          COUNT(*) as total_orders,
+          SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered_orders,
+          SUM(CASE WHEN status NOT IN ('delivered', 'cancelled') THEN 1 END) as pending_orders
+        FROM orders 
+        WHERE DATE(delivery_date) = DATE('now')
+      `).first(),
 
-    // 2. Yarının siparişleri için ürün ihtiyacı
-    const { results: tomorrowNeeds } = await db.prepare(`
-      SELECT 
-        p.name,
-        p.stock as current_stock,
-        SUM(oi.quantity) as needed_quantity
-      FROM orders o
-      JOIN order_items oi ON o.id = oi.order_id
-      JOIN products p ON oi.product_id = p.id
-      WHERE DATE(o.delivery_date) = DATE('now', '+1 day')
-      GROUP BY p.id, p.name, p.stock
-      ORDER BY needed_quantity DESC
-    `).all();
+      // 2. Yarının siparişleri için ürün ihtiyacı
+      db.prepare(`
+        SELECT 
+          p.name,
+          p.stock as current_stock,
+          SUM(oi.quantity) as needed_quantity
+        FROM orders o
+        JOIN order_items oi ON o.id = oi.order_id
+        JOIN products p ON oi.product_id = p.id
+        WHERE DATE(o.delivery_date) = DATE('now', '+1 day')
+        GROUP BY p.id, p.name, p.stock
+        ORDER BY needed_quantity DESC
+      `).all(),
 
-    // 3. Teslimat programı
-    const { results: orderSummary } = await db.prepare(`
-      SELECT 
-        date(delivery_date) as date,
-        COUNT(*) as count
-      FROM orders
-      WHERE date(delivery_date) BETWEEN date('now') AND date('now', '+2 days')
-      GROUP BY date(delivery_date)
-      ORDER BY date
-    `).all();
+      // 3. Teslimat programı
+      db.prepare(`
+        SELECT 
+          date(delivery_date) as date,
+          COUNT(*) as count
+        FROM orders
+        WHERE date(delivery_date) BETWEEN date('now') AND date('now', '+2 days')
+        GROUP BY date(delivery_date)
+        ORDER BY date
+      `).all(),
 
-    // 4. Düşük stok sayısı
-    const lowStock = await db.prepare(`
-      SELECT COUNT(*) as count 
-      FROM products 
-      WHERE stock <= min_stock
-    `).first();
+      // 4. Düşük stok sayısı
+      db.prepare(`SELECT COUNT(*) as count FROM products WHERE stock <= min_stock`).first()
+    ]);
 
     return c.json({
       deliveryStats: todayDeliveries,
