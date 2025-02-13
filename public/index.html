@@ -26,7 +26,10 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title"><i class="bi bi-truck"></i> Bekleyen Teslimatlar</h5>
-                        <p class="card-text h3" id="pendingDeliveries">Yükleniyor...</p>
+                        <p class="card-text h3" id="pendingDeliveries">
+                            <span id="delivered-count">0</span> / <span id="total-deliveries">0</span> Teslimat
+                        </p>
+                        <p class="text-muted" id="pending-count">0 bekleyen teslimat</p>
                     </div>
                 </div>
             </div>
@@ -70,7 +73,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
-                            <i class="bi bi-box-seam"></i> Stok Durumu
+                            <i class="bi bi-box-seam"></i> Yarın İçin Gerekli Ürünler
                         </h5>
                     </div>
                     <div class="list-group list-group-flush" id="low-stock-list">
@@ -113,20 +116,6 @@
 
         <div class="alert alert-info mt-4" id="status">
             <i class="bi bi-info-circle"></i> Durum: Yükleniyor...
-        </div>
-
-        <div class="stats-container">
-            <!-- Teslimat İstatistikleri -->
-            <div class="stat-box">
-                <h3>Bekleyen Teslimatlar</h3>
-                <div id="delivery-stats"></div>
-            </div>
-
-            <!-- Stok Durumu -->
-            <div class="stat-box">
-                <h3>Yarın İçin Gerekli Ürünler</h3>
-                <div id="stock-needs"></div>
-            </div>
         </div>
 
         <div class="update-time">
