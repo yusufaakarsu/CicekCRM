@@ -46,42 +46,6 @@
         </div>
     </div>
 
-    <!-- Yeni Müşteri Modal -->
-    <div class="modal fade" id="addCustomerModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Yeni Müşteri Ekle</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addCustomerForm">
-                        <div class="mb-3">
-                            <label class="form-label">Müşteri Adı</label>
-                            <input type="text" class="form-control" name="name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Telefon</label>
-                            <input type="tel" class="form-control" name="phone" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Adres</label>
-                            <textarea class="form-control" name="address" rows="3" required></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                    <button type="button" class="btn btn-primary" onclick="saveCustomer()">Kaydet</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Müşteri Detay Modal -->
     <div class="modal fade" id="customerDetailsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -119,22 +83,56 @@
                     </div>
                     <div class="mt-4">
                         <h6>Son Siparişler</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm" id="customerOrdersTable">
-                                <thead>
-                                    <tr>
-                                        <th>Tarih</th>
-                                        <th>Ürünler</th>
-                                        <th>Tutar</th>
-                                        <th>Durum</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td colspan="4" class="text-center">Yükleniyor...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Ürünler</th>
+                                    <th>Tutar</th>
+                                    <th>Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customerOrdersTable">
+                                <tr><td colspan="4" class="text-center">Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yeni Müşteri Modal -->
+    <div class="modal fade" id="addCustomerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Müşteri Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCustomerForm">
+                        <div class="mb-3">
+                            <label class="form-label">Müşteri Adı</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Adres</label>
+                            <textarea class="form-control" name="address" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCustomer()">Kaydet</button>
                 </div>
             </div>
         </div>

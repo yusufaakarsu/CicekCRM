@@ -26,7 +26,7 @@ async function loadCustomers() {
                     <td>${customer.total_orders || 0}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary me-1" onclick="showCustomerDetails('${customer.id}')">
-                            <i class="bi bi-info-circle"></i>
+                            <i class="bi bi-person-lines-fill"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-warning me-1" onclick="editCustomer('${customer.id}')">
                             <i class="bi bi-pencil"></i>
@@ -101,20 +101,16 @@ async function showCustomerDetails(customerId) {
         document.getElementById('detail-total-spent').textContent = formatCurrency(customer.total_spent || 0);
 
         // Siparişleri listele
-        const tbody = document.querySelector('#customerOrdersTable tbody');
+        const tbody = document.getElementById('customerOrdersTable');
         if (orders && orders.length > 0) {
-            tbody.innerHTML = orders.map(order => {
-                // items string'i virgülle ayrılmış olarak geliyor, array'e çevir
-                const items = order.items ? order.items.split(',') : [];
-                return `
-                    <tr>
-                        <td>${formatDate(order.created_at)}</td>
-                        <td>${items.join(', ')}</td>
-                        <td>${formatCurrency(order.total_amount)}</td>
-                        <td>${getStatusBadge(order.status)}</td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>${formatDate(order.created_at)}</td>
+                    <td>${order.items || '-'}</td>
+                    <td>${formatCurrency(order.total_amount)}</td>
+                    <td>${getStatusBadge(order.status)}</td>
+                </tr>
+            `).join('');
         } else {
             tbody.innerHTML = '<tr><td colspan="4" class="text-center">Sipariş bulunamadı</td></tr>';
         }
