@@ -72,9 +72,8 @@ async function loadDashboardData() {
 
         // İstatistik kartları güncelleme
         document.getElementById('ordersToday').textContent = `${data.deliveryStats.total_orders} Sipariş`;
-        document.getElementById('pendingDeliveries').innerHTML = 
-            `${data.deliveryStats.delivered_orders} / ${data.deliveryStats.total_orders} Teslimat
-            <p class="text-muted">${data.deliveryStats.pending_orders} bekleyen teslimat</p>`;
+        document.getElementById('pendingDeliveries').textContent = 
+            `${data.deliveryStats.delivered_orders} / ${data.deliveryStats.total_orders} Teslimat`;
 
         // Yarının ürün ihtiyaçları
         const stockList = document.getElementById('low-stock-list');
