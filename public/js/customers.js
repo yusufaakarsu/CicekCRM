@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let customerModal, detailsModal, editModal;
 let currentCustomerId = null;
+let orderDetailModal, editOrderModal;
 
 async function loadCustomers() {
     try {
@@ -167,6 +168,76 @@ async function updateCustomer() {
     } catch (error) {
         console.error('Müşteri güncellenirken hata:', error);
         showError('Müşteri güncellenemedi!');
+    }
+}
+
+async function showOrderDetails(orderId) {
+    orderDetailModal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+    
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}`);
+        if (!response.ok) throw new Error('API Hatası');
+        const order = await response.json();
+        
+        document.getElementById('order-detail-id').textContent = order.id;
+        document.getElementById('order-detail-customer').textContent = order.customer_name;
+        document.getElementById('order-detail-delivery').textContent = formatDate(order.delivery_date);
+        document.getElementById('order-detail-address').textContent = order.delivery_address;
+        document.getElementById('order-detail-amount').textContent = formatCurrency(order.total_amount);
+        document.getElementById('order-detail-status').innerHTML = getStatusBadge(order.status);
+        document.getElementById('order-detail-items').innerHTML = order.items
+            .map(item => `${item.quantity}x ${item.name} (${formatCurrency(item.price)})`).join('<br>');
+
+        orderDetailModal.show();
+    } catch (error) {
+        console.error('Sipariş detayları yüklenirken hata:', error);
+        showError('Sipariş detayları yüklenemedi!');
+    }
+}
+
+async function editOrder(orderId) {
+    editOrderModal = new bootstrap.Modal(document.getElementById('editOrderModal'));
+    
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}`);
+        if (!response.ok) throw new Error('API Hatası');
+        const order = await response.json();
+        
+        const form = document.getElementById('editOrderForm');
+        form.elements['id'].value = order.id;
+        form.elements['delivery_date'].value = order.delivery_date.slice(0, 16);
+        form.elements['delivery_address'].value = order.delivery_address;
+        form.elements['status'].value = order.status;
+
+        editOrderModal.show();
+    } catch (error) {
+        console.error('Sipariş bilgileri yüklenirken hata:', error);
+        showError('Sipariş bilgileri yüklenemedi!');
+    }
+}
+
+async function updateOrder() {
+    const form = document.getElementById('editOrderForm');
+    const formData = new FormData(form);
+    const orderId = formData.get('id');
+    
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(Object.fromEntries(formData))
+        });
+
+        if (!response.ok) throw new Error('API Hatası');
+
+        editOrderModal.hide();
+        await loadCustomers(); // Listeyi yenile
+        showSuccess('Sipariş başarıyla güncellendi!');
+    } catch (error) {
+        console.error('Sipariş güncellenirken hata:', error);
+        showError('Sipariş güncellenemedi!');
     }
 }
 
