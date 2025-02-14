@@ -459,6 +459,50 @@ function clearNewOrderForm() {
     calculateTotals();
 }
 
+// Telefon numarasına göre müşteri ara
+async function searchCustomer() {
+    const phoneInput = document.querySelector('[name="customer_phone"]');
+    const phone = phoneInput.value.replace(/\D/g, ''); // Sadece rakamları al
+    
+    if (phone.length !== 10) {
+        showToast('Geçerli bir telefon numarası girin', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/customers/search/phone/${phone}`);
+        if (!response.ok) throw new Error('API Hatası');
+        const customer = await response.json();
+        
+        const customerDetails = document.getElementById('customerDetails');
+        customerDetails.classList.remove('d-none');
+        
+        if (customer.found === false) {
+            // Yeni müşteri formu
+            document.querySelector('[name="customer_id"]').value = '';
+            document.querySelector('[name="customer_name"]').value = '';
+            document.querySelector('[name="customer_email"]').value = '';
+            document.querySelector('[name="customer_address"]').value = '';
+            
+            document.querySelector('[name="customer_name"]').removeAttribute('readonly');
+            document.querySelector('[name="customer_email"]').removeAttribute('readonly');
+            document.querySelector('[name="customer_address"]').removeAttribute('readonly');
+        } else {
+            // Mevcut müşteri bilgilerini doldur
+            document.querySelector('[name="customer_id"]').value = customer.id;
+            document.querySelector('[name="customer_name"]').value = customer.name;
+            document.querySelector('[name="customer_email"]').value = customer.email || '';
+            document.querySelector('[name="customer_address"]').value = customer.address || '';
+            
+            document.querySelector('[name="customer_name"]').setAttribute('readonly', true);
+            document.querySelector('[name="customer_email"]').setAttribute('readonly', true);
+            document.querySelector('[name="customer_address"]').setAttribute('readonly', true);
+        }
+    } catch (error) {
+        showToast('Müşteri araması başarısız', 'error');
+    }
+}
+
 // Siparişi kaydet
 async function saveOrder() {
     const form = document.getElementById('newOrderForm');
@@ -468,9 +512,38 @@ async function saveOrder() {
     }
     
     try {
-        // Form verilerini topla
-        const formData = {
-            customer_id: form.querySelector('[name="customer_id"]').value,
+        let customerId = form.querySelector('[name="customer_id"]').value;
+        
+        // Eğer müşteri ID yoksa önce müşteriyi kaydet
+        if (!customerId) {
+            const customerData = {
+                name: form.querySelector('[name="customer_name"]').value,
+                phone: form.querySelector('[name="customer_phone"]').value,
+                email: form.querySelector('[name="customer_email"]').value,
+                address: form.querySelector('[name="customer_address"]').value
+            };
+            
+            const customerResponse = await fetch(`${API_URL}/customers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(customerData)
+            });
+            
+            const customerResult = await customerResponse.json();
+            
+            if (customerResponse.ok) {
+                customerId = customerResult.id;
+            } else if (customerResult.id) {
+                // Telefon numarası zaten kayıtlı
+                customerId = customerResult.id;
+            } else {
+                throw new Error('Müşteri kaydedilemedi');
+            }
+        }
+
+        // Sipariş verilerini hazırla
+        const orderData = {
+            customer_id: customerId,
             recipient_name: form.querySelector('[name="recipient_name"]').value,
             recipient_phone: form.querySelector('[name="recipient_phone"]').value,
             delivery_address: form.querySelector('[name="delivery_address"]').value,
@@ -490,7 +563,7 @@ async function saveOrder() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(orderData)
         });
 
         if (!response.ok) throw new Error('Kayıt başarısız');

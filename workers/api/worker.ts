@@ -180,12 +180,39 @@ api.get('/customers', async (c) => {
   }
 })
 
+// Telefon numarasına göre müşteri ara
+api.get('/customers/search/phone/:phone', async (c) => {
+  const db = c.env.DB;
+  const { phone } = c.req.param();
+  
+  try {
+    const customer = await db.prepare(`
+      SELECT * FROM customers 
+      WHERE phone = ?
+      LIMIT 1
+    `).bind(phone).first();
+    
+    return c.json(customer || { found: false });
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
 // Yeni müşteri ekle
 api.post('/customers', async (c) => {
   const body = await c.req.json()
   const db = c.env.DB
   
   try {
+    // Önce telefon numarasını kontrol et
+    const existing = await db.prepare(`
+      SELECT id FROM customers WHERE phone = ?
+    `).bind(body.phone).first();
+    
+    if (existing) {
+      return c.json({ error: 'Phone number already exists', id: existing.id }, 400);
+    }
+
     const result = await db
       .prepare(`
         INSERT INTO customers (name, phone, email, address)
