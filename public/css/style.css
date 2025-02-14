@@ -356,3 +356,13 @@ body {
 .order-details .p-3 {
     border-top: 1px solid #dee2e6;
 }
+
+/* Teslim edilen siparişler için stil */
+.delivered-order {
+    background-color: #f8f9fa !important;
+    color: #6c757d;
+}
+
+.delivered-order td {
+    opacity: 0.8;
+}

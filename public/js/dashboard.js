@@ -66,6 +66,23 @@ function updateOrdersTable(tableId, orders) {
     const table = document.getElementById(tableId);
     if (!table) return;
 
+    // Siparişleri sırala
+    const sortedOrders = orders.sort((a, b) => {
+        // Önce teslimat saatine göre sırala
+        const timeSlotOrder = {
+            'morning': 1,
+            'afternoon': 2,
+            'evening': 3
+        };
+
+        // Teslim edilenler en sona
+        if (a.status === 'delivered' && b.status !== 'delivered') return 1;
+        if (a.status !== 'delivered' && b.status === 'delivered') return -1;
+
+        // Aynı durumdaysa teslimat saatine göre sırala
+        return timeSlotOrder[a.delivery_time_slot] - timeSlotOrder[b.delivery_time_slot];
+    });
+
     table.innerHTML = `
         <thead>
             <tr>
@@ -77,8 +94,10 @@ function updateOrdersTable(tableId, orders) {
             </tr>
         </thead>
         <tbody>
-            ${orders.map(order => `
-                <tr class="order-row" data-order-id="${order.id}" style="cursor: pointer;">
+            ${sortedOrders.map(order => `
+                <tr class="order-row ${order.status === 'delivered' ? 'delivered-order' : ''}" 
+                    data-order-id="${order.id}" 
+                    style="cursor: pointer;">
                     <td>
                         <div class="delivery-time ${order.delivery_time_slot}">
                             ${formatDeliveryTime(order.delivery_time_slot)}
