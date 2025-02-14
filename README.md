@@ -55,7 +55,7 @@ wrangler deploy
 
 git add .
 git commit -m "Update project documentation and gitignore patterns"
-git push origin main
+git push origin deployment
 
 ## Geliştirme Notları
 
