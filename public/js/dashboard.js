@@ -6,16 +6,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadDashboardData() {
     try {
-        // Tüm verileri tek seferde alalım
-        const [dashboard, todayOrders, tomorrowOrders, weekOrders] = await Promise.all([
-            fetch(`${API_URL}/api/dashboard`).then(r => r.json()),
-            fetch(`${API_URL}/orders/filtered?date_filter=today`).then(r => r.json()),
-            fetch(`${API_URL}/orders/filtered?date_filter=tomorrow`).then(r => r.json()),
-            fetch(`${API_URL}/orders/filtered?date_filter=week`).then(r => r.json())
-        ]);
-
-        // İstatistikleri güncelle
+        // Ana veriyi yükle
+        const dashboard = await fetch(`${API_URL}/api/dashboard`).then(r => r.json());
         updateStats(dashboard);
+        
+        // Tüm sonuçları getir
+        const todayOrders = await fetch(`${API_URL}/orders/filtered?date_filter=today&per_page=1000`).then(r => r.json());
+        const tomorrowOrders = await fetch(`${API_URL}/orders/filtered?date_filter=tomorrow&per_page=1000`).then(r => r.json());
+        const weekOrders = await fetch(`${API_URL}/orders/filtered?date_filter=week&per_page=10&page=1`).then(r => r.json());
         
         // Teslimat sayılarını güncelle
         updateDeliveryCounts(todayOrders.orders);
@@ -23,7 +21,7 @@ async function loadDashboardData() {
         // Tabloları güncelle
         updateOrdersTable('todayOrders', todayOrders.orders);
         updateOrdersTable('tomorrowOrders', tomorrowOrders.orders);
-        updateOrdersTable('weekOrders', weekOrders.orders);
+        updateOrdersTableWithPagination('weekOrders', weekOrders);
 
     } catch (error) {
         console.error('Dashboard hatası:', error);
@@ -116,6 +114,119 @@ function updateOrdersTable(tableId, orders) {
             `).join('')}
         </tbody>
     `;
+}
+
+function updateOrdersTableWithPagination(tableId, data) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    // Tablo içeriğini oluştur
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Saat</th>
+                <th>Müşteri</th>
+                <th>Alıcı</th>
+                <th>Teslimat</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${data.orders.map(order => `
+                <tr>
+                    <td>
+                        <div class="delivery-time ${order.delivery_time_slot}">
+                            ${formatDeliveryTime(order.delivery_time_slot)}
+                        </div>
+                    </td>
+                    <td>${order.customer_name || '-'}</td>
+                    <td>
+                        <div>${order.recipient_name || '-'}</div>
+                        <small>${order.recipient_phone || '-'}</small>
+                    </td>
+                    <td>
+                        <div>${order.delivery_address || '-'}</div>
+                        <small>${order.delivery_notes || ''}</small>
+                    </td>
+                    <td>${getStatusBadge(order.status)}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-info" 
+                                    onclick="showOrderDetails('${order.id}')"
+                                    title="Detay">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" 
+                                    onclick="editOrder('${order.id}')"
+                                    title="Düzenle">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('')}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="6">
+                    <nav aria-label="Sayfalama" class="mt-3">
+                        <ul class="pagination justify-content-center mb-0">
+                            ${generatePaginationButtons(data.page, data.total_pages)}
+                        </ul>
+                    </nav>
+                </td>
+            </tr>
+        </tfoot>
+    `;
+
+    // Sayfalama butonlarına tıklama olaylarını ekle
+    table.querySelectorAll('.page-link').forEach(button => {
+        button.addEventListener('click', () => {
+            const page = button.dataset.page;
+            loadWeekPage(page);
+        });
+    });
+}
+
+function generatePaginationButtons(currentPage, totalPages) {
+    let buttons = [];
+    
+    // Önceki sayfa butonu
+    buttons.push(`
+        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+            <button class="page-link" data-page="${currentPage - 1}">Önceki</button>
+        </li>
+    `);
+
+    // Sayfa numaraları
+    for (let i = 1; i <= totalPages; i++) {
+        buttons.push(`
+            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                <button class="page-link" data-page="${i}">${i}</button>
+            </li>
+        `);
+    }
+
+    // Sonraki sayfa butonu
+    buttons.push(`
+        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+            <button class="page-link" data-page="${currentPage + 1}">Sonraki</button>
+        </li>
+    `);
+
+    return buttons.join('');
+}
+
+async function loadWeekPage(page) {
+    try {
+        const response = await fetch(`${API_URL}/orders/filtered?date_filter=week&per_page=10&page=${page}`);
+        const data = await response.json();
+        updateOrdersTableWithPagination('weekOrders', data);
+    } catch (error) {
+        console.error('Sayfa yüklenirken hata:', error);
+        showToast('Sayfa yüklenemedi', 'error');
+    }
 }
 
 // Toast mesajı göster
