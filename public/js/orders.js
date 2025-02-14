@@ -206,7 +206,7 @@ function showToast(message, type = 'error') {
 // Sipariş detay modalını göster
 async function showOrderDetails(orderId) {
     try {
-        const response = await fetch(`${API_URL}/orders/${orderId}`);
+        const response = await fetch(`${API_URL}/orders/${orderId}/details`);
         if (!response.ok) throw new Error('API Hatası');
         const order = await response.json();
 
@@ -219,9 +219,14 @@ async function showOrderDetails(orderId) {
         document.getElementById('order-detail-address').textContent = order.delivery_address;
         document.getElementById('order-detail-amount').textContent = formatCurrency(order.total_amount);
         document.getElementById('order-detail-status').innerHTML = getStatusBadge(order.status);
-        document.getElementById('order-detail-items').innerHTML = order.items
-            ? order.items.split(',').join('<br>')
-            : '-';
+        
+        // Ürünleri listele
+        const items = order.items ? order.items.split(',').map(item => {
+            const [quantity, name] = item.trim().split('x ');
+            return `${quantity}x ${name}`;
+        }) : [];
+        
+        document.getElementById('order-detail-items').innerHTML = items.join('<br>') || '-';
 
         modal.show();
     } catch (error) {
@@ -232,15 +237,18 @@ async function showOrderDetails(orderId) {
 // Sipariş düzenleme modalını göster
 async function editOrder(orderId) {
     try {
-        const response = await fetch(`${API_URL}/orders/${orderId}`);
+        const response = await fetch(`${API_URL}/orders/${orderId}/details`);
         if (!response.ok) throw new Error('API Hatası');
         const order = await response.json();
 
         const modal = new bootstrap.Modal(document.getElementById('editOrderModal'));
         const form = document.getElementById('editOrderForm');
         
+        // Form alanlarını doldur
         form.elements['id'].value = order.id;
-        form.elements['delivery_date'].value = order.delivery_date.slice(0, 16); // datetime-local için
+        // ISO string'i local datetime'a çevir
+        const deliveryDate = new Date(order.delivery_date);
+        form.elements['delivery_date'].value = deliveryDate.toISOString().slice(0, 16);
         form.elements['delivery_address'].value = order.delivery_address;
         form.elements['status'].value = order.status;
 
