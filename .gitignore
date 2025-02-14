@@ -5,22 +5,14 @@ node_modules/
 # environment
 .env
 .dev.vars
-.env*.local
+.env.local
 
 # cloudflare
 .wrangler/
-/dist/
-/worker/
-
-# IDE & System
-.DS_Store
-*.log
-
-# Database
-/database/backups
-backup/
-
-# Build
-*.tsbuildinfo
 /dist
-/workers/api/dist
+/workers/api/dist/
+
+# development
+*.log
+.DS_Store
+*.tsbuildinfo
