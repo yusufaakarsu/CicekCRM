@@ -163,9 +163,17 @@ api.get('/api/finance/transactions', async (c) => {
 api.get('/customers', async (c) => {
   const db = c.env.DB
   try {
-    const { results } = await db
-      .prepare('SELECT * FROM customers ORDER BY name')
-      .all()
+    const { results } = await db.prepare(`
+      SELECT 
+        c.*,
+        COUNT(o.id) as total_orders,
+        MAX(o.created_at) as last_order,
+        SUM(o.total_amount) as total_spent
+      FROM customers c
+      LEFT JOIN orders o ON c.id = o.customer_id
+      GROUP BY c.id, c.name, c.phone, c.email, c.address
+      ORDER BY c.name
+    `).all()
     return c.json(results)
   } catch (error) {
     return c.json({ error: 'Database error' }, 500)
@@ -448,6 +456,115 @@ api.put('/customers/:id', async (c) => {
       SET name = ?, phone = ?, email = ?, address = ?
       WHERE id = ?
     `).bind(body.name, body.phone, body.email, body.address, id).run();
+
+    return c.json({ success: true });
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
+// Filtrelenmiş siparişleri getir
+api.get('/orders/filtered', async (c) => {
+  const db = c.env.DB;
+  const { status, date_filter, start_date, end_date, sort, page, per_page } = c.req.query();
+  
+  try {
+    let query = `
+      SELECT 
+        o.*,
+        c.name as customer_name,
+        GROUP_CONCAT(oi.quantity || 'x ' || p.name) as items
+      FROM orders o
+      LEFT JOIN customers c ON o.customer_id = c.id
+      LEFT JOIN order_items oi ON o.id = oi.order_id
+      LEFT JOIN products p ON oi.product_id = p.id
+      WHERE 1=1
+    `;
+    
+    const params = [];
+
+    // Status filtresi
+    if (status) {
+      query += ` AND o.status = ?`;
+      params.push(status);
+    }
+
+    // Tarih filtresi
+    if (date_filter) {
+      switch (date_filter) {
+        case 'today':
+          query += ` AND DATE(o.delivery_date) = DATE('now')`;
+          break;
+        case 'tomorrow':
+          query += ` AND DATE(o.delivery_date) = DATE('now', '+1 day')`;
+          break;
+        case 'week':
+          query += ` AND DATE(o.delivery_date) BETWEEN DATE('now') AND DATE('now', '+7 days')`;
+          break;
+        case 'month':
+          query += ` AND strftime('%Y-%m', o.delivery_date) = strftime('%Y-%m', 'now')`;
+          break;
+      }
+    } else if (start_date && end_date) {
+      query += ` AND DATE(o.delivery_date) BETWEEN ? AND ?`;
+      params.push(start_date, end_date);
+    }
+
+    // Grup ve sıralama
+    query += ` GROUP BY o.id`;
+
+    // Sıralama
+    if (sort) {
+      const [field, direction] = sort.split('_');
+      const sortField = field === 'date' ? 'o.delivery_date' : 'o.total_amount';
+      query += ` ORDER BY ${sortField} ${direction.toUpperCase()}`;
+    } else {
+      query += ` ORDER BY o.delivery_date DESC`;
+    }
+
+    // Toplam kayıt sayısı
+    const countQuery = query.replace(
+      'SELECT o.*, c.name as customer_name, GROUP_CONCAT(oi.quantity || \'x \' || p.name) as items',
+      'SELECT COUNT(DISTINCT o.id) as total'
+    );
+    const { total } = await db.prepare(countQuery).bind(...params).first();
+
+    // Sayfalama
+    const pageNum = parseInt(page) || 1;
+    const perPage = parseInt(per_page) || 10;
+    const offset = (pageNum - 1) * perPage;
+    
+    query += ` LIMIT ? OFFSET ?`;
+    params.push(perPage, offset);
+
+    const { results } = await db.prepare(query).bind(...params).all();
+
+    return c.json({
+      orders: results,
+      total,
+      page: pageNum,
+      per_page: perPage,
+      total_pages: Math.ceil(total / perPage)
+    });
+
+  } catch (error) {
+    console.error('Orders filter error:', error);
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
+// Sipariş iptal et
+api.put('/orders/:id/cancel', async (c) => {
+  const db = c.env.DB;
+  const { id } = c.req.param();
+  
+  try {
+    await db.prepare(`
+      UPDATE orders 
+      SET status = 'cancelled',
+          updated_at = DATETIME('now')
+      WHERE id = ?
+    `).bind(id).run();
 
     return c.json({ success: true });
   } catch (error) {
