@@ -1,5 +1,5 @@
-// API URL'ini düzelt
-const API_URL = 'https://cicek-crm-api.yusufaakarsu.workers.dev';
+// API URL'ini global olarak tanımla
+const API_URL = 'https://cicek-crm-api.yusuf.workers.dev';
 
 // Header yükleme fonksiyonu
 async function loadHeader() {

@@ -50,11 +50,9 @@ function setupFilters() {
 
 async function loadOrders() {
     try {
-        const API_URL = 'https://cicek-crm-api.yusuf.workers.dev'; // Worker URL'ini kullan
-        console.log('Fetching from:', API_URL); // URL'i kontrol et
-        
+        // Global API_URL'i kullan
         const response = await fetch(`${API_URL}/orders`);
-        console.log('Response:', response); // Response'u kontrol et
+        console.log('API Response:', response);
         
         if (!response.ok) throw new Error(`API Hatası: ${response.status}`);
         const orders = await response.json();
