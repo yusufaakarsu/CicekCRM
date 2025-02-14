@@ -55,14 +55,11 @@ async function loadOrders() {
                 </td>
                 <td>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" onclick="showOrderDetails(${order.id})" title="Detaylar">
+                        <button class="btn btn-outline-info" onclick="showOrderDetails(${order.id})" title="Detay">
                             <i class="bi bi-eye"></i>
                         </button>
-                        <button class="btn btn-outline-secondary" onclick="editOrder(${order.id})" title="Düzenle">
+                        <button class="btn btn-outline-primary" onclick="editOrder(${order.id})" title="Düzenle">
                             <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-outline-success" onclick="updateStatus(${order.id})" title="Durum Güncelle">
-                            <i class="bi bi-arrow-clockwise"></i>
                         </button>
                     </div>
                 </td>
@@ -115,6 +112,69 @@ async function showOrderDetails(orderId) {
     } catch (error) {
         showToast('Sipariş detayları yüklenemedi');
     }
+}
+
+// Sipariş düzenleme fonksiyonu ekle
+async function editOrder(orderId) {
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}/details`);
+        if (!response.ok) throw new Error('API Hatası');
+        const order = await response.json();
+
+        // Form elemanlarını doldur
+        const form = document.getElementById('editOrderForm');
+        form.querySelector('[name="id"]').value = order.id;
+        form.querySelector('[name="delivery_date"]').value = formatDateForInput(order.delivery_date);
+        form.querySelector('[name="delivery_address"]').value = order.delivery_address;
+        form.querySelector('[name="status"]').value = order.status;
+
+        // Modalı göster
+        const modal = new bootstrap.Modal(document.getElementById('editOrderModal'));
+        modal.show();
+    } catch (error) {
+        showToast('Sipariş bilgileri yüklenemedi', 'error');
+    }
+}
+
+// Form gönderme işlemi
+async function updateOrder() {
+    const form = document.getElementById('editOrderForm');
+    const orderId = form.querySelector('[name="id"]').value;
+    
+    try {
+        const formData = {
+            delivery_date: form.querySelector('[name="delivery_date"]').value,
+            delivery_address: form.querySelector('[name="delivery_address"]').value,
+            status: form.querySelector('[name="status"]').value
+        };
+
+        const response = await fetch(`${API_URL}/orders/${orderId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) throw new Error('Güncelleme başarısız');
+
+        // Modalı kapat
+        bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
+        
+        // Tabloyu yenile
+        loadOrders();
+        
+        // Başarı mesajı göster
+        showToast('Sipariş başarıyla güncellendi', 'success');
+    } catch (error) {
+        showToast('Sipariş güncellenirken hata oluştu', 'error');
+    }
+}
+
+// Input için tarih formatı
+function formatDateForInput(dateString) {
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 16); // "YYYY-MM-DDThh:mm" formatı
 }
 
 // Durum badge'leri için yardımcı fonksiyonlar

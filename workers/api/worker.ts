@@ -683,4 +683,31 @@ api.post('/orders', async (c) => {
   }
 });
 
+// Sipariş güncelleme endpoint'i
+api.put('/orders/:id', async (c) => {
+  const db = c.env.DB;
+  const { id } = c.req.param();
+  const body = await c.req.json();
+  
+  try {
+    await db.prepare(`
+      UPDATE orders 
+      SET delivery_date = ?,
+          delivery_address = ?,
+          status = ?,
+          updated_at = DATETIME('now')
+      WHERE id = ?
+    `).bind(
+      body.delivery_date,
+      body.delivery_address,
+      body.status,
+      id
+    ).run();
+
+    return c.json({ success: true });
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
 export default api
