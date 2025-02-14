@@ -1,6 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadHeader();
     loadOrders();
+    
+    // Durum butonları için event listener ekle
+    const statusButtons = document.querySelectorAll('[data-status]');
+    statusButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const status = e.currentTarget.dataset.status;
+            updateOrderStatus(status);
+        });
+    });
 });
 
 async function loadOrders() {
@@ -261,27 +270,22 @@ function updateStatusButtons(currentStatus) {
     const currentIndex = statusFlow.indexOf(currentStatus);
     
     // Butonları bul ve güncelle
-    const buttons = {
-        'preparing': document.querySelector('[onclick="updateOrderStatus(\'preparing\')"]'),
-        'ready': document.querySelector('[onclick="updateOrderStatus(\'ready\')"]'),
-        'delivering': document.querySelector('[onclick="updateOrderStatus(\'delivering\')"]'),
-        'delivered': document.querySelector('[onclick="updateOrderStatus(\'delivered\')"]')
-    };
-
-    // Her butonu kontrol et ve durumunu güncelle
-    Object.entries(buttons).forEach(([status, button]) => {
-        if (button) {
-            const statusIndex = statusFlow.indexOf(status);
-            if (statusIndex <= currentIndex) {
-                button.classList.add('active', 'disabled');
-                button.setAttribute('disabled', 'disabled');
-            } else if (statusIndex === currentIndex + 1) {
-                button.classList.remove('disabled');
-                button.removeAttribute('disabled');
-            } else {
-                button.classList.add('disabled');
-                button.setAttribute('disabled', 'disabled');
-            }
+    document.querySelectorAll('[data-status]').forEach(button => {
+        const status = button.dataset.status;
+        const statusIndex = statusFlow.indexOf(status);
+        
+        if (statusIndex <= currentIndex) {
+            button.classList.add('active');
+            button.setAttribute('disabled', 'true');
+            button.setAttribute('aria-disabled', 'true');
+        } else if (statusIndex === currentIndex + 1) {
+            button.classList.remove('active', 'disabled');
+            button.removeAttribute('disabled');
+            button.removeAttribute('aria-disabled');
+        } else {
+            button.classList.add('disabled');
+            button.setAttribute('disabled', 'true');
+            button.setAttribute('aria-disabled', 'true');
         }
     });
 }

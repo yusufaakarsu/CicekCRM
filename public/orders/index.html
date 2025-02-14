@@ -114,21 +114,23 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="orderDetailModalLabel">Sipariş #<span id="order-detail-id"></span></h5>
-                    <div class="ms-auto btn-group" role="group" aria-label="Sipariş durumu değiştirme">
-                        <button class="btn btn-outline-warning" onclick="updateOrderStatus('preparing')" type="button">
-                            <i class="bi bi-box-seam" aria-hidden="true"></i> Hazırlanıyor
-                        </button>
-                        <button class="btn btn-outline-info" onclick="updateOrderStatus('ready')" type="button">
-                            <i class="bi bi-box" aria-hidden="true"></i> Hazır
-                        </button>
-                        <button class="btn btn-outline-primary" onclick="updateOrderStatus('delivering')" type="button">
-                            <i class="bi bi-truck" aria-hidden="true"></i> Yolda
-                        </button>
-                        <button class="btn btn-outline-success" onclick="updateOrderStatus('delivered')" type="button">
-                            <i class="bi bi-check-circle" aria-hidden="true"></i> Teslim Edildi
-                        </button>
+                    <div class="ms-auto btn-toolbar" role="toolbar" aria-label="Sipariş durumu">
+                        <div class="btn-group me-2" role="group" aria-label="Durum değiştirme butonları">
+                            <button class="btn btn-outline-warning" data-status="preparing" type="button">
+                                <i class="bi bi-box-seam" aria-hidden="true"></i> Hazırlanıyor
+                            </button>
+                            <button class="btn btn-outline-info" data-status="ready" type="button">
+                                <i class="bi bi-box" aria-hidden="true"></i> Hazır
+                            </button>
+                            <button class="btn btn-outline-primary" data-status="delivering" type="button">
+                                <i class="bi bi-truck" aria-hidden="true"></i> Yolda
+                            </button>
+                            <button class="btn btn-outline-success" data-status="delivered" type="button">
+                                <i class="bi bi-check-circle" aria-hidden="true"></i> Teslim Edildi
+                            </button>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                     </div>
-                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Kapat"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
