@@ -51,18 +51,18 @@ function setupFilters() {
 async function loadOrders() {
     try {
         const response = await fetch('/api/orders');
-        if (!response.ok) throw new Error('Siparişler yüklenemedi');
+        if (!response.ok) throw new Error('API Hatası');
         const orders = await response.json();
         
-        const tbody = document.getElementById('ordersTable'); // ID'yi düzelttik
+        const tbody = document.getElementById('ordersTable');
         if (!tbody) {
-            console.error('Tablo tbody elemanı bulunamadı');
+            console.error('Tablo tbody elemanı bulunamadı (ordersTable)');
             return;
         }
         
         tbody.innerHTML = orders.map(order => renderOrder(order)).join('');
     } catch (error) {
-        //console.error('Siparişler yüklenirken hata:', error);
+        console.error('Siparişler yüklenirken hata:', error);
         showToast('Siparişler yüklenemedi!', 'error');
     }
 }
@@ -88,77 +88,6 @@ function getActiveFilters() {
     }
 
     return filters;
-}
-
-function renderOrders(orders) {
-    const tbody = document.querySelector('#ordersTable tbody');
-    
-    if (orders && orders.length > 0) {
-        tbody.innerHTML = orders.map(order => {
-            const items = order.items ? order.items.split(',') : [];
-            
-            return `
-                <tr style="cursor: pointer">
-                    <td onclick="showOrderDetails('${order.id}')">${order.id}</td>
-                    <td onclick="showOrderDetails('${order.id}')">
-                        <div class="mb-1"><strong>${order.customer_name}</strong></div>
-                        <div class="text-muted small">
-                            <i class="bi bi-person"></i> ${order.recipient_name}<br>
-                            <i class="bi bi-telephone"></i> ${order.recipient_phone}
-                        </div>
-                    </td>
-                    <td onclick="showOrderDetails('${order.id}')">
-                        <div class="mb-1">
-                            <i class="bi bi-calendar"></i> ${formatDate(order.delivery_date)}
-                            <small class="text-muted">${order.delivery_time_slot || ''}</small>
-                        </div>
-                        <div class="text-muted small">
-                            <i class="bi bi-geo-alt"></i> ${order.recipient_address || order.delivery_address}
-                        </div>
-                    </td>
-                    <td onclick="showOrderDetails('${order.id}')">${items.join('<br>')}</td>
-                    <td onclick="showOrderDetails('${order.id}')">${formatCurrency(order.total_amount)}</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-${getStatusColor(order.status)} dropdown-toggle btn-sm" 
-                                    type="button" 
-                                    data-bs-toggle="dropdown">
-                                ${getStatusText(order.status)}
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item ${order.status === 'new' ? 'active' : ''}" 
-                                      href="javascript:void(0)" 
-                                      onclick="updateOrderStatus('${order.id}', 'new')">Yeni</a></li>
-                                <li><a class="dropdown-item ${order.status === 'preparing' ? 'active' : ''}" 
-                                      href="javascript:void(0)" 
-                                      onclick="updateOrderStatus('${order.id}', 'preparing')">Hazırlanıyor</a></li>
-                                <li><a class="dropdown-item ${order.status === 'ready' ? 'active' : ''}" 
-                                      href="javascript:void(0)" 
-                                      onclick="updateOrderStatus('${order.id}', 'ready')">Hazır</a></li>
-                                <li><a class="dropdown-item ${order.status === 'delivering' ? 'active' : ''}" 
-                                      href="javascript:void(0)" 
-                                      onclick="updateOrderStatus('${order.id}', 'delivering')">Yolda</a></li>
-                                <li><a class="dropdown-item ${order.status === 'delivered' ? 'active' : ''}" 
-                                      href="javascript:void(0)" 
-                                      onclick="updateOrderStatus('${order.id}', 'delivered')">Teslim Edildi</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger ${order.status === 'cancelled' ? 'active' : ''}" 
-                                      href="javascript:void(0)" 
-                                      onclick="confirmCancelOrder('${order.id}')">İptal Et</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="showOrderDetails('${order.id}')">
-                            <i class="bi bi-info-circle"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-    } else {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Sipariş bulunamadı</td></tr>';
-    }
 }
 
 // Status renk ve metin fonksiyonları
@@ -419,88 +348,4 @@ async function cancelOrder(orderId) {
     } catch (error) {
         showToast('Sipariş iptal edilemedi!', 'error');
     }
-}
-
-async function fetchOrders() {
-    try {
-        const response = await fetch('/api/orders');
-        if (!response.ok) throw new Error('Siparişler yüklenemedi');
-        const orders = await response.json();
-        
-        const orderList = document.getElementById('orderList');
-        orderList.innerHTML = orders.map(order => `
-            <tr>
-                <td>${order.id}</td>
-                <td>
-                    <span class="badge ${getStatusClass(order.status)}">${getOrderStatus(order.status)}</span>
-                    <span class="badge ${getDeliveryStatusClass(order.delivery_status)}">${getDeliveryStatus(order.delivery_status)}</span>
-                </td>
-                <td>
-                    <div>${order.customer_name}</div>
-                    <div class="small text-muted">${order.customer_phone}</div>
-                </td>
-                <td>
-                    <div>${formatDate(order.delivery_date)} - ${order.delivery_time_slot}</div>
-                    <div class="small">${order.delivery_address}</div>
-                    <div class="small">${order.delivery_district}, ${order.delivery_city}</div>
-                    ${order.delivery_notes ? `<div class="small text-danger">${order.delivery_notes}</div>` : ''}
-                </td>
-                <td>
-                    <div>${order.recipient_name}</div>
-                    <div class="small">${order.recipient_phone}</div>
-                    ${order.recipient_note ? `<div class="small text-danger">${order.recipient_note}</div>` : ''}
-                    ${order.card_message ? `<div class="small fst-italic">"${order.card_message}"</div>` : ''}
-                </td>
-                <td>
-                    <div class="fw-bold">${formatPrice(order.total_amount)}</div>
-                    <span class="badge ${getPaymentStatusClass(order.payment_status)}">${getPaymentStatus(order.payment_status)}</span>
-                    <div class="small">${order.payment_method}</div>
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" onclick="showOrderDetail('${order.id}')">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <button class="btn btn-outline-secondary" onclick="showEditOrder('${order.id}')">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    } catch (error) {
-        console.error('Siparişler yüklenirken hata:', error);
-        showError('Siparişler yüklenemedi');
-    }
-}
-
-function getStatusClass(status) {
-    const classes = {
-        'new': 'bg-primary',
-        'preparing': 'bg-warning',
-        'delivering': 'bg-info',
-        'delivered': 'bg-success',
-        'cancelled': 'bg-danger'
-    };
-    return classes[status] || 'bg-secondary';
-}
-
-function getDeliveryStatusClass(status) {
-    const classes = {
-        'pending': 'bg-secondary',
-        'assigned': 'bg-info',
-        'on_way': 'bg-warning',
-        'completed': 'bg-success',
-        'failed': 'bg-danger'
-    };
-    return classes[status] || 'bg-secondary';
-}
-
-function getPaymentStatusClass(status) {
-    const classes = {
-        'pending': 'bg-warning',
-        'paid': 'bg-success',
-        'refunded': 'bg-danger'
-    };
-    return classes[status] || 'bg-secondary';
 }
