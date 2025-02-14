@@ -82,8 +82,7 @@ wrangler deploy
 │       └── wrangler.toml     # Cloudflare yapılandırması
 ├── PLAN.md                    # Geliştirme planı ve notlar
 ├── README.md                  # Proje dokümantasyonu
-├── schema.sql               # Veritabanı tablo yapısı
-└── tsconfig.json           # TypeScript yapılandırması
+└── schema.sql               # Veritabanı tablo yapısı
 ```
 
 ## Teknolojiler
