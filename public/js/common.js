@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // API URL'ini düzelt
+=======
+// API URL'ini global olarak tanımla
+>>>>>>> development
 const API_URL = 'https://cicek-crm-api.yusufaakarsu.workers.dev';
 
 // Header yükleme fonksiyonu
@@ -42,6 +46,10 @@ function hideLoading(element) {
 
 // Format tarih
 function formatDate(date) {
+<<<<<<< HEAD
+=======
+    if (!date) return '-';
+>>>>>>> development
     return new Intl.DateTimeFormat('tr-TR', {
         day: '2-digit',
         month: '2-digit',
@@ -72,6 +80,7 @@ async function loadDashboardData() {
 
         // İstatistik kartları güncelleme
         document.getElementById('ordersToday').textContent = `${data.deliveryStats.total_orders} Sipariş`;
+<<<<<<< HEAD
         document.getElementById('pendingDeliveries').textContent = 
             `${data.deliveryStats.delivered_orders} / ${data.deliveryStats.total_orders} Teslimat`;
 
@@ -79,11 +88,27 @@ async function loadDashboardData() {
         const stockList = document.getElementById('low-stock-list');
         if (data.tomorrowNeeds.results && data.tomorrowNeeds.results.length > 0) {
             stockList.innerHTML = data.tomorrowNeeds.results.map(item => `
+=======
+        document.getElementById('deliveredOrders').textContent = `${data.deliveryStats.delivered_orders} Teslim Edilen`;
+        document.getElementById('pendingDeliveries').textContent = `${data.deliveryStats.pending_orders} Teslimat`;
+
+        // Teslimat programı güncelleme
+        const summary = data.orderSummary;
+        document.getElementById('today-orders').textContent = `${summary[0]?.count || 0} Sipariş`;
+        document.getElementById('tomorrow-orders').textContent = `${summary[1]?.count || 0} Sipariş`;
+        document.getElementById('future-orders').textContent = `${summary[2]?.count || 0} Sipariş`;
+
+        // Yarının ürün ihtiyaçları
+        const stockList = document.getElementById('low-stock-list');
+        if (data.tomorrowNeeds && data.tomorrowNeeds.length > 0) {
+            stockList.innerHTML = data.tomorrowNeeds.map(item => `
+>>>>>>> development
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <span>${item.name}</span>
                     <span>İhtiyaç: ${item.needed_quantity} adet</span>
                 </div>
             `).join('');
+<<<<<<< HEAD
         }
 
         // Teslimat programı güncelleme
@@ -97,6 +122,16 @@ async function loadDashboardData() {
         // Düşük stok sayısı
         document.getElementById('lowStockCount').textContent = `${data.lowStock} Ürün`;
 
+=======
+        } else {
+            stockList.innerHTML = '<div class="list-group-item">Yarın için sipariş yok</div>';
+        }
+
+        // Düşük stok
+        document.getElementById('lowStockCount').textContent = `${data.lowStock} Ürün`;
+
+        // Son güncelleme
+>>>>>>> development
         document.getElementById('status').innerHTML = `
             <i class="bi bi-check-circle"></i> Son güncelleme: ${new Date().toLocaleTimeString()}
         `;
@@ -110,7 +145,11 @@ async function loadDashboardData() {
 
 async function loadRecentOrders() {
     try {
+<<<<<<< HEAD
         const response = await fetch(`${API_URL}/orders/recent-detailed`);
+=======
+        const response = await fetch(`${API_URL}/orders`);
+>>>>>>> development
         if (!response.ok) throw new Error('API Hatası');
         const orders = await response.json();
         
@@ -129,6 +168,7 @@ async function loadRecentOrders() {
                     <td>${formatCurrency(order.total_amount)}</td>
                 </tr>
             `).join('');
+<<<<<<< HEAD
         } else {
             recentOrdersTable.innerHTML = '<tr><td colspan="5" class="text-center">Sipariş bulunamadı</td></tr>';
         }
@@ -136,5 +176,10 @@ async function loadRecentOrders() {
         console.error('Recent orders error:', error);
         document.getElementById('recentOrders').getElementsByTagName('tbody')[0].innerHTML = 
             '<tr><td colspan="5" class="text-center text-danger">Siparişler yüklenirken hata oluştu!</td></tr>';
+=======
+        }
+    } catch (error) {
+        console.error('Recent orders error:', error);
+>>>>>>> development
     }
 }

@@ -1,0 +1,15 @@
+{
+  "name": "cicek-crm-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "hono": "^3.12.12"
+  },
+  "devDependencies": {
+    "wrangler": "^3.108.1"
+  },
+  "scripts": {
+    "deploy": "wrangler deploy"
+  }
+}

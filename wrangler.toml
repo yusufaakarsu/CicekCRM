@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name = "cicek-crm-api"
 main = "src/worker.ts"
 compatibility_date = "2024-02-12"
@@ -13,3 +14,33 @@ bucket = "./public"
 
 [build]
 command = "npm run build"
+=======
+# App
+name = "cicek-crm"
+main = "src/worker.ts"
+compatibility_date = "2024-03-15"
+
+# Cloudflare D1
+[[d1_databases]]
+binding = "DB"
+database_name = "cicek-crm-db"
+database_id = "4b0bbc33-f9ec-4adf-a983-d6683839752d"  # wrangler d1 create cicek-crm-db komutundan gelen ID
+
+# Environment Variables
+[vars]
+ENVIRONMENT = "development"
+
+# Development için .dev.vars dosyasından yüklenecek
+[env.development]
+workers_dev = true
+
+# Production için
+[env.production]
+routes = [
+  { pattern = "api.your-domain.com", custom_domain = true }
+]
+
+routes = [
+  { pattern = "/workers/api/*", zone_name = "cicekcrm.com" }
+]
+>>>>>>> development
