@@ -40,6 +40,101 @@
         </div>
     </div>
 
+    <!-- Sipariş Detay Modal -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Teslimat Detayları</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Müşteri Bilgileri</h6>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4">Müşteri:</dt>
+                                        <dd class="col-sm-8" id="modal-customer-name">-</dd>
+                                        <dt class="col-sm-4">Telefon:</dt>
+                                        <dd class="col-sm-8" id="modal-customer-phone">-</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Teslimat Bilgileri</h6>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4">Tarih:</dt>
+                                        <dd class="col-sm-8" id="modal-delivery-date">-</dd>
+                                        <dt class="col-sm-4">Saat:</dt>
+                                        <dd class="col-sm-8" id="modal-delivery-time">-</dd>
+                                        <dt class="col-sm-4">Durum:</dt>
+                                        <dd class="col-sm-8" id="modal-order-status">-</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Alıcı Bilgileri</h6>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4">Alıcı:</dt>
+                                        <dd class="col-sm-8" id="modal-recipient-name">-</dd>
+                                        <dt class="col-sm-4">Telefon:</dt>
+                                        <dd class="col-sm-8" id="modal-recipient-phone">-</dd>
+                                        <dt class="col-sm-4">Adres:</dt>
+                                        <dd class="col-sm-8" id="modal-delivery-address">-</dd>
+                                        <dt class="col-sm-4">Not:</dt>
+                                        <dd class="col-sm-8" id="modal-recipient-note">-</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Ürünler</h6>
+                                </div>
+                                <div class="list-group list-group-flush" id="modal-order-items">
+                                    <!-- Ürünler buraya JavaScript ile eklenecek -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-warning" data-action="preparing">
+                            <i class="bi bi-box-seam"></i> Hazırlanıyor
+                        </button>
+                        <button type="button" class="btn btn-outline-info" data-action="ready">
+                            <i class="bi bi-box"></i> Hazır
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" data-action="delivering">
+                            <i class="bi bi-truck"></i> Yolda
+                        </button>
+                        <button type="button" class="btn btn-outline-success" data-action="delivered">
+                            <i class="bi bi-check-circle"></i> Teslim Edildi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="/js/common.js"></script>

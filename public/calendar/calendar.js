@@ -182,40 +182,71 @@ function initializeCalendar() {
     calendar.render();
 }
 
-async function showDeliveryDetails(deliveryId) {
+async function showDeliveryDetails(orderId) {
     try {
-        const response = await fetch(`${API_URL}/orders/${deliveryId}/details`);
-        const delivery = await response.json();
+        const response = await fetch(`${API_URL}/orders/${orderId}/details`);
+        if (!response.ok) throw new Error('API Hatası');
+        const order = await response.json();
 
-        // Modal içeriği
-        const modal = new bootstrap.Modal(document.getElementById('deliveryModal'));
-        document.getElementById('delivery-details').innerHTML = `
-            <div class="card">
-                <div class="card-body">
-                    <h6>Teslimat Bilgileri</h6>
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4">Alıcı:</dt>
-                        <dd class="col-sm-8">${delivery.recipient_name}</dd>
-                        
-                        <dt class="col-sm-4">Telefon:</dt>
-                        <dd class="col-sm-8">${delivery.recipient_phone}</dd>
-                        
-                        <dt class="col-sm-4">Adres:</dt>
-                        <dd class="col-sm-8">${delivery.delivery_address}</dd>
-                        
-                        <dt class="col-sm-4">Saat:</dt>
-                        <dd class="col-sm-8">${formatDeliveryTime(delivery.delivery_time_slot)}</dd>
-                        
-                        <dt class="col-sm-4">Not:</dt>
-                        <dd class="col-sm-8">${delivery.delivery_notes || '-'}</dd>
-                    </dl>
+        // Modal içeriğini doldur
+        document.getElementById('modal-customer-name').textContent = order.customer_name || '-';
+        document.getElementById('modal-customer-phone').textContent = order.customer_phone || '-';
+        document.getElementById('modal-delivery-date').textContent = formatDate(order.delivery_date);
+        document.getElementById('modal-delivery-time').textContent = formatDeliveryTime(order.delivery_time_slot);
+        document.getElementById('modal-order-status').innerHTML = getStatusBadge(order.status);
+        document.getElementById('modal-recipient-name').textContent = order.recipient_name || '-';
+        document.getElementById('modal-recipient-phone').textContent = order.recipient_phone || '-';
+        document.getElementById('modal-delivery-address').textContent = order.delivery_address || '-';
+        document.getElementById('modal-recipient-note').textContent = order.recipient_note || '-';
+
+        // Ürün listesini doldur
+        const itemsContainer = document.getElementById('modal-order-items');
+        if (order.items_list) {
+            itemsContainer.innerHTML = order.items_list.split(',').map(item => `
+                <div class="list-group-item">
+                    <i class="bi bi-flower1"></i> ${item.trim()}
                 </div>
-            </div>
-        `;
+            `).join('');
+        } else {
+            itemsContainer.innerHTML = '<div class="list-group-item">Ürün bilgisi bulunamadı</div>';
+        }
+
+        // Durum butonlarını güncelle
+        updateStatusButtons(order.status);
+
+        // Modalı göster
+        const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
         modal.show();
     } catch (error) {
-        console.error('Teslimat detayları alınamadı:', error);
+        console.error('Sipariş detayları alınamadı:', error);
+        alert('Sipariş detayları yüklenirken hata oluştu');
     }
+}
+
+function updateStatusButtons(currentStatus) {
+    const statusFlow = ['new', 'preparing', 'ready', 'delivering', 'delivered'];
+    const currentIndex = statusFlow.indexOf(currentStatus);
+    
+    document.querySelectorAll('.modal-footer .btn').forEach(button => {
+        const action = button.dataset.action;
+        const actionIndex = statusFlow.indexOf(action);
+        
+        button.disabled = actionIndex <= currentIndex;
+        if (action === currentStatus) {
+            button.classList.remove('btn-outline-' + getButtonStyle(action));
+            button.classList.add('btn-' + getButtonStyle(action));
+        }
+    });
+}
+
+function getButtonStyle(status) {
+    const styles = {
+        'preparing': 'warning',
+        'ready': 'info',
+        'delivering': 'primary',
+        'delivered': 'success'
+    };
+    return styles[status] || 'secondary';
 }
 
 function formatTime(dateStr) {
