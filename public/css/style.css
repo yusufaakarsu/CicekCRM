@@ -245,14 +245,14 @@ body {
 }
 
 .delivery-time.morning { 
-    background-color: #fff3cd; 
-    color: #997404;
+    background-color: #fcf4d4; /* daha yumuşak sarı */
+    color: #8b6e04; /* koyu sarı */
 }
 .delivery-time.afternoon { 
-    background-color: #cff4fc; 
-    color: #055160;
+    background-color: #e3f5fc; /* daha yumuşak mavi */
+    color: #045c6e; /* koyu mavi */
 }
 .delivery-time.evening { 
-    background-color: #d3d3fc; 
-    color: #3b0764;
+    background-color: #e5e5fc; /* daha yumuşak mor */
+    color: #2d0764; /* koyu mor */
 }
