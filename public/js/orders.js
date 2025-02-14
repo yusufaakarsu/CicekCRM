@@ -50,16 +50,17 @@ function setupFilters() {
 
 async function loadOrders() {
     try {
-        // Filtreleri al
-        const filters = getActiveFilters();
-        const queryString = new URLSearchParams(filters).toString();
-
-        const response = await fetch(`${API_URL}/orders/filtered?${queryString}`);
-        if (!response.ok) throw new Error('API Hatası');
-        const data = await response.json();
-
-        renderOrders(data.orders);
-        renderPagination(data.total, data.total_pages, data.page); // Parametre ekledik
+        const response = await fetch('/api/orders');
+        if (!response.ok) throw new Error('Siparişler yüklenemedi');
+        const orders = await response.json();
+        
+        const tbody = document.getElementById('ordersTable'); // ID'yi düzelttik
+        if (!tbody) {
+            console.error('Tablo tbody elemanı bulunamadı');
+            return;
+        }
+        
+        tbody.innerHTML = orders.map(order => renderOrder(order)).join('');
     } catch (error) {
         console.error('Siparişler yüklenirken hata:', error);
         showToast('Siparişler yüklenemedi!', 'error');
