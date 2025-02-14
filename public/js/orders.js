@@ -62,7 +62,7 @@ async function loadOrders() {
         
         tbody.innerHTML = orders.map(order => renderOrder(order)).join('');
     } catch (error) {
-        console.error('Siparişler yüklenirken hata:', error);
+        //console.error('Siparişler yüklenirken hata:', error);
         showToast('Siparişler yüklenemedi!', 'error');
     }
 }
