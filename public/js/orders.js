@@ -50,8 +50,13 @@ function setupFilters() {
 
 async function loadOrders() {
     try {
-        const response = await fetch('/api/orders');
-        if (!response.ok) throw new Error('API Hatası');
+        // API URL'ini kontrol et
+        const API_URL = '/workers/api'; // API_URL'i tanımla
+        const response = await fetch(`${API_URL}/orders`);
+        
+        console.log('API Response:', response); // Response detaylarını gör
+        
+        if (!response.ok) throw new Error(`API Hatası: ${response.status}`);
         const orders = await response.json();
         
         const tbody = document.getElementById('ordersTable');
@@ -63,7 +68,7 @@ async function loadOrders() {
         tbody.innerHTML = orders.map(order => renderOrder(order)).join('');
     } catch (error) {
         console.error('Siparişler yüklenirken hata:', error);
-        showToast('Siparişler yüklenemedi!', 'error');
+        showToast('Siparişler yüklenemedi! ' + error.message, 'error');
     }
 }
 

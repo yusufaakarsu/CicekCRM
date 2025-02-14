@@ -22,3 +22,7 @@ workers_dev = true
 routes = [
   { pattern = "api.your-domain.com", custom_domain = true }
 ]
+
+routes = [
+  { pattern = "/workers/api/*", zone_name = "cicekcrm.com" }
+]
