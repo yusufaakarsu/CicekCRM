@@ -381,21 +381,21 @@ function formatPrice(amount) {
 // Sipariş satırını oluştur
 function renderOrder(order) {
     return `
-        <tr class="border-b">
-            <td class="px-4 py-2">${order.id}</td>
-            <td class="px-4 py-2">
+        <tr>
+            <td>${order.id}</td>
+            <td>
                 <span class="badge bg-${getStatusColor(order.status)}">${getStatusText(order.status)}</span>
             </td>
-            <td class="px-4 py-2">
+            <td>
                 <div>${order.customer_name}</div>
-                <div class="text-sm text-muted">${order.customer_phone || ''}</div>
+                <small class="text-muted">${order.customer_phone || ''}</small>
             </td>
-            <td class="px-4 py-2">
+            <td>
                 <div>${formatDate(order.delivery_date)}</div>
-                <div class="text-sm text-muted">${order.delivery_address}</div>
+                <small class="text-muted">${order.delivery_address}</small>
             </td>
-            <td class="px-4 py-2">${formatCurrency(order.total_amount)}</td>
-            <td class="px-4 py-2">
+            <td>${formatPrice(order.total_amount)}</td>
+            <td>
                 <div class="btn-group btn-group-sm">
                     <button class="btn btn-outline-primary" onclick="showOrderDetails('${order.id}')">
                         <i class="bi bi-eye"></i>

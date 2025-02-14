@@ -112,7 +112,7 @@ async function loadDashboardData() {
 
 async function loadRecentOrders() {
     try {
-        const response = await fetch(`${API_URL}/orders/recent-detailed`);
+        const response = await fetch(`${API_URL}/orders`); // /api/orders DEĞİL! Sadece /orders!
         if (!response.ok) throw new Error('API Hatası');
         const orders = await response.json();
         
