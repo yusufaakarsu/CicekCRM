@@ -185,4 +185,76 @@ body {
     font-weight: 500;
     padding: 0.5em 0.75em;
 }
->>>>>>> development
+
+/* Sipariş formu bölümleri */
+.order-section {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.order-section.customer {
+    border-left: 4px solid #0d6efd;  /* Bootstrap primary color */
+}
+
+.order-section.delivery {
+    border-left: 4px solid #198754;  /* Bootstrap success color */
+}
+
+.order-section.recipient {
+    border-left: 4px solid #6f42c1;  /* Bootstrap purple color */
+}
+
+.order-section.products {
+    border-left: 4px solid #fd7e14;  /* Bootstrap orange color */
+}
+
+.order-section.payment {
+    border-left: 4px solid #dc3545;  /* Bootstrap danger color */
+}
+
+.order-section h5 {
+    color: #444;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-section .form-label {
+    font-weight: 500;
+    color: #666;
+}
+
+/* Zorunlu alan yıldızı */
+.required-field::after {
+    content: '*';
+    color: #dc3545;
+    margin-left: 4px;
+}
+
+/* Teslimat saati badge stilleri güncellendi */
+.delivery-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.delivery-time.morning { 
+    background-color: #fff3cd; 
+    color: #997404;
+}
+.delivery-time.afternoon { 
+    background-color: #cff4fc; 
+    color: #055160;
+}
+.delivery-time.evening { 
+    background-color: #d3d3fc; 
+    color: #3b0764;
+}

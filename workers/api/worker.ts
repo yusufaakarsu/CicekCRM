@@ -238,12 +238,39 @@ api.get('/customers', async (c) => {
   }
 })
 
+// Telefon numarasına göre müşteri ara
+api.get('/customers/search/phone/:phone', async (c) => {
+  const db = c.env.DB;
+  const { phone } = c.req.param();
+  
+  try {
+    const customer = await db.prepare(`
+      SELECT * FROM customers 
+      WHERE phone = ?
+      LIMIT 1
+    `).bind(phone).first();
+    
+    return c.json(customer || { found: false });
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
 // Yeni müşteri ekle
 api.post('/customers', async (c) => {
   const body = await c.req.json()
   const db = c.env.DB
   
   try {
+    // Önce telefon numarasını kontrol et
+    const existing = await db.prepare(`
+      SELECT id FROM customers WHERE phone = ?
+    `).bind(body.phone).first();
+    
+    if (existing) {
+      return c.json({ error: 'Phone number already exists', id: existing.id }, 400);
+    }
+
     const result = await db
       .prepare(`
         INSERT INTO customers (name, phone, email, address)
@@ -296,9 +323,19 @@ api.get('/orders', async (c) => {
   try {
     const { results } = await db
       .prepare(`
-        SELECT o.*, c.name as customer_name 
+        SELECT o.*, 
+               c.name as customer_name,
+               c.phone as customer_phone,
+               GROUP_CONCAT(
+                 oi.quantity || 'x ' || p.name
+               ) as items_list,
+               o.delivery_time_slot,
+               DATE(o.delivery_date) as delivery_date
         FROM orders o
         LEFT JOIN customers c ON o.customer_id = c.id
+        LEFT JOIN order_items oi ON o.id = oi.order_id
+        LEFT JOIN products p ON oi.product_id = p.id
+        GROUP BY o.id
         ORDER BY o.delivery_date DESC
       `)
       .all()
@@ -736,5 +773,31 @@ api.post('/orders', async (c) => {
   }
 });
 
->>>>>>> development
+// Sipariş güncelleme endpoint'i
+api.put('/orders/:id', async (c) => {
+  const db = c.env.DB;
+  const { id } = c.req.param();
+  const body = await c.req.json();
+  
+  try {
+    await db.prepare(`
+      UPDATE orders 
+      SET delivery_date = ?,
+          delivery_address = ?,
+          status = ?,
+          updated_at = DATETIME('now')
+      WHERE id = ?
+    `).bind(
+      body.delivery_date,
+      body.delivery_address,
+      body.status,
+      id
+    ).run();
+
+    return c.json({ success: true });
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
 export default api

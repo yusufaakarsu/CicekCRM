@@ -44,7 +44,7 @@ function hideLoading(element) {
     element.classList.remove('loading');
 }
 
-// Format tarih
+// Format tarih - sadece tarih için
 function formatDate(date) {
 <<<<<<< HEAD
 =======
@@ -53,10 +53,18 @@ function formatDate(date) {
     return new Intl.DateTimeFormat('tr-TR', {
         day: '2-digit',
         month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        year: 'numeric'
     }).format(new Date(date));
+}
+
+// Teslimat saati formatı güncellendi
+function formatDeliveryTime(slot) {
+    const slots = {
+        'morning': '📅 Sabah (09:00-12:00)', 
+        'afternoon': '🌞 Öğlen (12:00-17:00)',
+        'evening': '🌙 Akşam (17:00-21:00)'
+    };
+    return slots[slot] || slot;
 }
 
 // Status badge oluştur
@@ -70,6 +78,16 @@ function getStatusBadge(status) {
 
     const [text, color] = statusMap[status] || ['Bilinmiyor', 'secondary'];
     return `<span class="badge bg-${color}">${text}</span>`;
+}
+
+// Ödeme yöntemi formatla
+function formatPaymentMethod(method) {
+    const methodMap = {
+        'credit_card': 'Kredi Kartı',
+        'bank_transfer': 'Havale/EFT',
+        'cash': 'Nakit'
+    };
+    return methodMap[method] || method;
 }
 
 async function loadDashboardData() {

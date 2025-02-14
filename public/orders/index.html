@@ -40,9 +40,9 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-box"></i> Siparişler</h2>
-            <button class="btn btn-primary" onclick="showNewOrderModal()">
+            <a href="/orders/new.html" class="btn btn-primary">
                 <i class="bi bi-plus-lg"></i> Yeni Sipariş
-            </button>
+            </a>
         </div>
 
         <!-- Filtreler -->
@@ -130,14 +130,16 @@
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
-                            <tr class="bg-gray-100">
-                                <th class="px-4 py-2">Sipariş No</th>
-                                <th class="px-4 py-2">Durum</th>
-                                <th class="px-4 py-2">Müşteri</th>
-                                <th class="px-4 py-2">Teslimat Bilgileri</th>
-                                <th class="px-4 py-2">Alıcı Bilgileri</th>
-                                <th class="px-4 py-2">Ödeme</th>
-                                <th class="px-4 py-2">İşlemler</th>
+                            <tr>
+                                <th>Sipariş No</th>
+                                <th>Tarih</th>
+                                <th>Müşteri</th>
+                                <th>Teslimat</th>
+                                <th>Alıcı</th>
+                                <th>Ürünler</th>
+                                <th>Durum</th>
+                                <th>Tutar</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody id="ordersTable">
@@ -155,41 +157,86 @@
     </div>
 
     <!-- Sipariş Detay Modal -->
-    <div class="modal fade" id="orderDetailModal" tabindex="-1">
-        <div class="modal-dialog">
+    <div class="modal" id="orderDetailModal" role="dialog" aria-modal="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Sipariş Detayları</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="orderDetailModalLabel">Sipariş #<span id="order-detail-id"></span></h5>
+                    <div class="ms-auto btn-toolbar">
+                        <div class="btn-group me-2" role="group">
+                            <button type="button" class="btn btn-outline-warning status-btn" data-action="updateStatus" data-status="preparing" tabindex="0">
+                                <i class="bi bi-box-seam" aria-hidden="true"></i> Hazırlanıyor
+                            </button>
+                            <button type="button" class="btn btn-outline-info status-btn" data-action="updateStatus" data-status="ready" tabindex="0">
+                                <i class="bi bi-box" aria-hidden="true"></i> Hazır
+                            </button>
+                            <button type="button" class="btn btn-outline-primary status-btn" data-action="updateStatus" data-status="delivering" tabindex="0">
+                                <i class="bi bi-truck" aria-hidden="true"></i> Yolda
+                            </button>
+                            <button type="button" class="btn btn-outline-success status-btn" data-action="updateStatus" data-status="delivered" tabindex="0">
+                                <i class="bi bi-check-circle" aria-hidden="true"></i> Teslim Edildi
+                            </button>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                    </div>
                 </div>
                 <div class="modal-body">
-                    <dl>
-                        <dt>Sipariş No</dt>
-                        <dd id="order-detail-id">-</dd>
-                        <dt>Sipariş Veren</dt>
-                        <dd id="order-detail-customer">-</dd>
-                        <dt>Alıcı</dt>
-                        <dd>
-                            <strong id="order-detail-recipient-name">-</strong><br>
-                            <small id="order-detail-recipient-phone" class="text-muted">-</small>
-                        </dd>
-                        <dt>Alıcı Adresi</dt>
-                        <dd id="order-detail-recipient-address">-</dd>
-                        <dt>Not</dt>
-                        <dd id="order-detail-recipient-note">-</dd>
-                        <dt>Kart Mesajı</dt>
-                        <dd id="order-detail-card-message">-</dd>
-                        <dt>Teslimat Tarihi</dt>
-                        <dd id="order-detail-delivery">-</dd>
-                        <dt>Adres</dt>
-                        <dd id="order-detail-address">-</dd>
-                        <dt>Tutar</dt>
-                        <dd id="order-detail-amount">-</dd>
-                        <dt>Durum</dt>
-                        <dd id="order-detail-status">-</dd>
-                        <dt>Ürünler</dt>
-                        <dd id="order-detail-items">-</dd>
-                    </dl>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Sipariş Bilgileri</h6>
+                            <dl>
+                                <dt>Sipariş Tarihi</dt>
+                                <dd id="order-detail-created_at">-</dd>
+                                <dt>Durum</dt>
+                                <dd id="order-detail-status">-</dd>
+                                <dt>Ödeme Durumu</dt>
+                                <dd id="order-detail-payment_status">-</dd>
+                                <dt>Ödeme Yöntemi</dt>
+                                <dd id="order-detail-payment_method">-</dd>
+                                <dt>Tutar</dt>
+                                <dd id="order-detail-total_amount">-</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Müşteri Bilgileri</h6>
+                            <dl>
+                                <dt>Müşteri</dt>
+                                <dd id="order-detail-customer_name">-</dd>
+                                <dt>Telefon</dt>
+                                <dd id="order-detail-customer_phone">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6>Teslimat Bilgileri</h6>
+                            <dl>
+                                <dt>Teslimat Tarihi</dt>
+                                <dd id="order-detail-delivery_date">-</dd>
+                                <dt>Teslimat Adresi</dt>
+                                <dd id="order-detail-delivery_address">-</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Alıcı Bilgileri</h6>
+                            <dl>
+                                <dt>Alıcı</dt>
+                                <dd id="order-detail-recipient_name">-</dd>
+                                <dt>Telefon</dt>
+                                <dd id="order-detail-recipient_phone">-</dd>
+                                <dt>Not</dt>
+                                <dd id="order-detail-recipient_note">-</dd>
+                                <dt>Kart Mesajı</dt>
+                                <dd id="order-detail-card_message">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Ürünler</h6>
+                            <div id="order-detail-items" class="list-group">-</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
