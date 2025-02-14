@@ -419,3 +419,87 @@ async function cancelOrder(orderId) {
         showToast('Sipariş iptal edilemedi!', 'error');
     }
 }
+
+async function fetchOrders() {
+    try {
+        const response = await fetch('/api/orders');
+        if (!response.ok) throw new Error('Siparişler yüklenemedi');
+        const orders = await response.json();
+        
+        const orderList = document.getElementById('orderList');
+        orderList.innerHTML = orders.map(order => `
+            <tr>
+                <td>${order.id}</td>
+                <td>
+                    <span class="badge ${getStatusClass(order.status)}">${getOrderStatus(order.status)}</span>
+                    <span class="badge ${getDeliveryStatusClass(order.delivery_status)}">${getDeliveryStatus(order.delivery_status)}</span>
+                </td>
+                <td>
+                    <div>${order.customer_name}</div>
+                    <div class="small text-muted">${order.customer_phone}</div>
+                </td>
+                <td>
+                    <div>${formatDate(order.delivery_date)} - ${order.delivery_time_slot}</div>
+                    <div class="small">${order.delivery_address}</div>
+                    <div class="small">${order.delivery_district}, ${order.delivery_city}</div>
+                    ${order.delivery_notes ? `<div class="small text-danger">${order.delivery_notes}</div>` : ''}
+                </td>
+                <td>
+                    <div>${order.recipient_name}</div>
+                    <div class="small">${order.recipient_phone}</div>
+                    ${order.recipient_note ? `<div class="small text-danger">${order.recipient_note}</div>` : ''}
+                    ${order.card_message ? `<div class="small fst-italic">"${order.card_message}"</div>` : ''}
+                </td>
+                <td>
+                    <div class="fw-bold">${formatPrice(order.total_amount)}</div>
+                    <span class="badge ${getPaymentStatusClass(order.payment_status)}">${getPaymentStatus(order.payment_status)}</span>
+                    <div class="small">${order.payment_method}</div>
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="showOrderDetail('${order.id}')">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="showEditOrder('${order.id}')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Siparişler yüklenirken hata:', error);
+        showError('Siparişler yüklenemedi');
+    }
+}
+
+function getStatusClass(status) {
+    const classes = {
+        'new': 'bg-primary',
+        'preparing': 'bg-warning',
+        'delivering': 'bg-info',
+        'delivered': 'bg-success',
+        'cancelled': 'bg-danger'
+    };
+    return classes[status] || 'bg-secondary';
+}
+
+function getDeliveryStatusClass(status) {
+    const classes = {
+        'pending': 'bg-secondary',
+        'assigned': 'bg-info',
+        'on_way': 'bg-warning',
+        'completed': 'bg-success',
+        'failed': 'bg-danger'
+    };
+    return classes[status] || 'bg-secondary';
+}
+
+function getPaymentStatusClass(status) {
+    const classes = {
+        'pending': 'bg-warning',
+        'paid': 'bg-success',
+        'refunded': 'bg-danger'
+    };
+    return classes[status] || 'bg-secondary';
+}

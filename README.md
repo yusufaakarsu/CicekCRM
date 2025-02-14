@@ -50,12 +50,15 @@ cat schema.sql | wrangler d1 execute CicekCRM --file=-
 ```
 
 3. Worker API'nin deploy edilmesi:
+
 cd workers/api
 wrangler deploy
 
+4. git push 
+
 git add .
-git commit -m "Update project documentation and gitignore patterns"
-git push origin deployment
+git commit -m "xxx"
+git push origin development
 
 ## Geliştirme Notları
 
@@ -97,10 +100,3 @@ git push origin deployment
 - [ ] Tedarikçi portalı
 
 
-git add .
-
-git commit -m "Update orders table structure and UI"
-
-git checkout development
-git merge main
-git push origin development
