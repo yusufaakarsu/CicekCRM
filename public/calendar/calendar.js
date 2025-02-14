@@ -72,10 +72,71 @@ function initializeCalendar() {
                     );
                 })
                 .catch(failureCallback);
+        },
+        eventDidMount: function(info) {
+            // Teslimat detay tooltip'i
+            const delivery = info.event.extendedProps;
+            tippy(info.el, {
+                content: `
+                    <div class="p-2">
+                        <div class="fw-bold">${info.event.title}</div>
+                        <div class="text-muted">${delivery.customer}</div>
+                        <div class="small">${delivery.address}</div>
+                        <div class="badge bg-${getStatusColor(delivery.status)}">${getStatusText(delivery.status)}</div>
+                    </div>
+                `,
+                allowHTML: true,
+                placement: 'top',
+                theme: 'light-border'
+            });
+        },
+
+        eventClick: function(info) {
+            showDeliveryDetails(info.event.id);
+        },
+
+        eventClassNames: function(arg) {
+            return [`delivery-status-${arg.event.extendedProps.status}`];
         }
     });
 
     calendar.render();
+}
+
+async function showDeliveryDetails(deliveryId) {
+    try {
+        const response = await fetch(`${API_URL}/orders/${deliveryId}/details`);
+        const delivery = await response.json();
+
+        // Modal içeriği
+        const modal = new bootstrap.Modal(document.getElementById('deliveryModal'));
+        document.getElementById('delivery-details').innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h6>Teslimat Bilgileri</h6>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Alıcı:</dt>
+                        <dd class="col-sm-8">${delivery.recipient_name}</dd>
+                        
+                        <dt class="col-sm-4">Telefon:</dt>
+                        <dd class="col-sm-8">${delivery.recipient_phone}</dd>
+                        
+                        <dt class="col-sm-4">Adres:</dt>
+                        <dd class="col-sm-8">${delivery.delivery_address}</dd>
+                        
+                        <dt class="col-sm-4">Saat:</dt>
+                        <dd class="col-sm-8">${formatDeliveryTime(delivery.delivery_time_slot)}</dd>
+                        
+                        <dt class="col-sm-4">Not:</dt>
+                        <dd class="col-sm-8">${delivery.delivery_notes || '-'}</dd>
+                    </dl>
+                </div>
+            </div>
+        `;
+        modal.show();
+    } catch (error) {
+        console.error('Teslimat detayları alınamadı:', error);
+    }
 }
 
 function formatTime(dateStr) {

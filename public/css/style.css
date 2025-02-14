@@ -93,6 +93,9 @@ body {
 
 .fc-event {
     cursor: pointer;
+    padding: 4px 8px;
+    border: none !important;
+    margin: 2px 0;
 }
 
 .delivery-time-morning { background-color: #fff3cd; }
@@ -124,6 +127,38 @@ body {
     border: none;
     padding: 2px 4px;
     margin: 1px 0;
+}
+
+.delivery-status-new { 
+    background-color: #fcf4d4 !important;
+    color: #8b6e04 !important;
+}
+
+.delivery-status-preparing { 
+    background-color: #e3f5fc !important;
+    color: #045c6e !important;
+}
+
+.delivery-status-delivering { 
+    background-color: #e5e5fc !important;
+    color: #2d0764 !important;
+}
+
+.delivery-status-delivered { 
+    background-color: #d4edda !important;
+    color: #155724 !important;
+}
+
+/* Takvim mobil düzenlemeler */
+@media (max-width: 768px) {
+    .fc .fc-toolbar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .fc .fc-toolbar-title {
+        font-size: 1.2rem;
+    }
 }
 
 /* Teslimat Listesi */
