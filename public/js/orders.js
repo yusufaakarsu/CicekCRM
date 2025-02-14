@@ -90,34 +90,106 @@ function renderOrders(orders) {
             const items = order.items ? order.items.split(',') : [];
             
             return `
-                <tr>
-                    <td>${order.id}</td>
-                    <td>${order.customer_name}</td>
-                    <td>${items.join('<br>')}</td>
-                    <td>
+                <tr style="cursor: pointer">
+                    <td onclick="showOrderDetails('${order.id}')">${order.id}</td>
+                    <td onclick="showOrderDetails('${order.id}')">${order.customer_name}</td>
+                    <td onclick="showOrderDetails('${order.id}')">${items.join('<br>')}</td>
+                    <td onclick="showOrderDetails('${order.id}')">
                         ${formatDate(order.delivery_date)}<br>
                         <small class="text-muted">${order.delivery_address}</small>
                     </td>
-                    <td>${formatCurrency(order.total_amount)}</td>
-                    <td>${getStatusBadge(order.status)}</td>
+                    <td onclick="showOrderDetails('${order.id}')">${formatCurrency(order.total_amount)}</td>
                     <td>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary" onclick="showOrderDetails('${order.id}')">
-                                <i class="bi bi-info-circle"></i>
+                        <div class="dropdown">
+                            <button class="btn btn-${getStatusColor(order.status)} dropdown-toggle btn-sm" 
+                                    type="button" 
+                                    data-bs-toggle="dropdown">
+                                ${getStatusText(order.status)}
                             </button>
-                            <button class="btn btn-outline-warning" onclick="editOrder('${order.id}')">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-outline-danger" onclick="cancelOrder('${order.id}')">
-                                <i class="bi bi-x-circle"></i>
-                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item ${order.status === 'new' ? 'active' : ''}" 
+                                      href="javascript:void(0)" 
+                                      onclick="updateOrderStatus('${order.id}', 'new')">Yeni</a></li>
+                                <li><a class="dropdown-item ${order.status === 'preparing' ? 'active' : ''}" 
+                                      href="javascript:void(0)" 
+                                      onclick="updateOrderStatus('${order.id}', 'preparing')">Hazırlanıyor</a></li>
+                                <li><a class="dropdown-item ${order.status === 'ready' ? 'active' : ''}" 
+                                      href="javascript:void(0)" 
+                                      onclick="updateOrderStatus('${order.id}', 'ready')">Hazır</a></li>
+                                <li><a class="dropdown-item ${order.status === 'delivering' ? 'active' : ''}" 
+                                      href="javascript:void(0)" 
+                                      onclick="updateOrderStatus('${order.id}', 'delivering')">Yolda</a></li>
+                                <li><a class="dropdown-item ${order.status === 'delivered' ? 'active' : ''}" 
+                                      href="javascript:void(0)" 
+                                      onclick="updateOrderStatus('${order.id}', 'delivered')">Teslim Edildi</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger ${order.status === 'cancelled' ? 'active' : ''}" 
+                                      href="javascript:void(0)" 
+                                      onclick="confirmCancelOrder('${order.id}')">İptal Et</a></li>
+                            </ul>
                         </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="showOrderDetails('${order.id}')">
+                            <i class="bi bi-info-circle"></i>
+                        </button>
                     </td>
                 </tr>
             `;
         }).join('');
     } else {
         tbody.innerHTML = '<tr><td colspan="7" class="text-center">Sipariş bulunamadı</td></tr>';
+    }
+}
+
+// Status renk ve metin fonksiyonları
+function getStatusColor(status) {
+    const colors = {
+        new: 'secondary',
+        preparing: 'info',
+        ready: 'primary',
+        delivering: 'warning',
+        delivered: 'success',
+        cancelled: 'danger'
+    };
+    return colors[status] || 'secondary';
+}
+
+function getStatusText(status) {
+    const texts = {
+        new: 'Yeni',
+        preparing: 'Hazırlanıyor',
+        ready: 'Hazır',
+        delivering: 'Yolda',
+        delivered: 'Teslim Edildi',
+        cancelled: 'İptal'
+    };
+    return texts[status] || 'Bilinmiyor';
+}
+
+// Sipariş durumu güncelleme
+async function updateOrderStatus(orderId, newStatus) {
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!response.ok) throw new Error('API Hatası');
+
+        showToast(`Sipariş durumu "${getStatusText(newStatus)}" olarak güncellendi`, 'success');
+        loadOrders(); // Tabloyu yenile
+    } catch (error) {
+        showToast('Sipariş durumu güncellenemedi!', 'error');
+    }
+}
+
+function confirmCancelOrder(orderId) {
+    if (confirm('Bu siparişi iptal etmek istediğinize emin misiniz?')) {
+        updateOrderStatus(orderId, 'cancelled');
     }
 }
 
