@@ -353,11 +353,29 @@ api.get('/calendar/events', async (c) => {
   try {
     const { results } = await db
       .prepare(`
-        SELECT o.*, c.name as customer_name 
+        SELECT 
+          o.*, 
+          c.name as customer_name,
+          GROUP_CONCAT(oi.quantity || 'x ' || p.name) as items_list,
+          o.delivery_time_slot,
+          o.delivery_date,
+          o.status,
+          o.delivery_address,
+          o.recipient_name,
+          o.recipient_phone,
+          o.delivery_notes
         FROM orders o
         LEFT JOIN customers c ON o.customer_id = c.id
+        LEFT JOIN order_items oi ON o.id = oi.order_id
+        LEFT JOIN products p ON oi.product_id = p.id
         WHERE DATE(o.delivery_date) BETWEEN DATE(?) AND DATE(?)
-        ORDER BY o.delivery_date ASC
+        GROUP BY o.id
+        ORDER BY o.delivery_date ASC, 
+        CASE o.delivery_time_slot 
+          WHEN 'morning' THEN 1 
+          WHEN 'afternoon' THEN 2 
+          WHEN 'evening' THEN 3 
+        END
       `)
       .bind(start, end)
       .all()

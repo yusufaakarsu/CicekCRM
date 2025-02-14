@@ -291,3 +291,39 @@ body {
     background-color: #e5e5fc; /* daha yumuşak mor */
     color: #2d0764; /* koyu mor */
 }
+
+/* Takvim görünüm stilleri */
+.fc-timeGridDay-view .fc-event,
+.fc-timeGridWeek-view .fc-event {
+    border-radius: 4px;
+    margin: 1px 2px;
+}
+
+.fc-timeGridDay-view .fc-event-main,
+.fc-timeGridWeek-view .fc-event-main {
+    padding: 2px 4px;
+}
+
+.month-view-event {
+    background: #e3e3e3 !important;
+    color: #333 !important;
+    text-align: center;
+    font-weight: 500;
+}
+
+.fc-event-count {
+    padding: 2px 4px;
+    font-size: 0.9em;
+}
+
+/* Her görünüm için yükseklik ayarları */
+.fc .fc-view-harness {
+    min-height: 600px !important;
+}
+
+.fc-timeGridDay-view .fc-event-title,
+.fc-timeGridWeek-view .fc-event-title {
+    font-weight: 500;
+    font-size: 0.9em;
+    white-space: normal;
+}

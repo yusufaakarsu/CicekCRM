@@ -47,31 +47,110 @@ function initializeCalendar() {
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,dayGridWeek'
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         buttonText: {
             today: 'Bugün',
             month: 'Ay',
-            week: 'Hafta'
+            week: 'Hafta',
+            day: 'Gün'
+        },
+        views: {
+            timeGridDay: {
+                titleFormat: { year: 'numeric', month: 'long', day: 'numeric' },
+                allDaySlot: false,
+                slotMinTime: '09:00:00',
+                slotMaxTime: '21:00:00',
+                slotDuration: '01:00:00',
+            },
+            timeGridWeek: {
+                titleFormat: { year: 'numeric', month: 'long' },
+                allDaySlot: false,
+                slotMinTime: '09:00:00',
+                slotMaxTime: '21:00:00',
+                slotDuration: '01:00:00',
+            },
+            dayGridMonth: {
+                titleFormat: { year: 'numeric', month: 'long' },
+                dayMaxEvents: true,
+            }
         },
         events: function(info, successCallback, failureCallback) {
             fetch(`${API_URL}/calendar/events?start=${info.startStr}&end=${info.endStr}`)
                 .then(response => response.json())
                 .then(events => {
-                    successCallback(
-                        events.map(event => ({
+                    const formattedEvents = events.map(event => {
+                        const timeSlots = {
+                            'morning': '09:00',
+                            'afternoon': '13:00',
+                            'evening': '17:00'
+                        };
+                        
+                        // Teslimat tarihini ve saatini birleştir
+                        const deliveryDate = event.delivery_date.split('T')[0];
+                        const deliveryTime = timeSlots[event.delivery_time_slot] || '09:00';
+                        const start = `${deliveryDate}T${deliveryTime}`;
+
+                        return {
+                            id: event.id,
                             title: event.recipient_name,
-                            start: event.delivery_date,
-                            className: `status-${event.status}`,
+                            start: start,
+                            className: `delivery-status-${event.status}`,
                             extendedProps: {
+                                timeSlot: event.delivery_time_slot,
                                 customer: event.customer_name,
                                 address: event.delivery_address,
-                                status: event.status
+                                status: event.status,
+                                items: event.items_list
                             }
-                        }))
-                    );
+                        };
+                    });
+
+                    // Ay görünümü için siparişleri grupla
+                    if (info.view.type === 'dayGridMonth') {
+                        const groupedEvents = formattedEvents.reduce((acc, event) => {
+                            const date = event.start.split('T')[0];
+                            if (!acc[date]) acc[date] = [];
+                            acc[date].push(event);
+                            return acc;
+                        }, {});
+
+                        const monthEvents = Object.entries(groupedEvents).map(([date, events]) => ({
+                            start: date,
+                            title: `${events.length} Sipariş`,
+                            className: 'month-view-event',
+                            extendedProps: {
+                                events: events
+                            }
+                        }));
+
+                        successCallback(monthEvents);
+                    } else {
+                        successCallback(formattedEvents);
+                    }
                 })
                 .catch(failureCallback);
+        },
+        eventContent: function(arg) {
+            if (arg.view.type === 'dayGridMonth') {
+                return {
+                    html: `<div class="fc-event-count">${arg.event.title}</div>`
+                };
+            }
+
+            const timeSlotIcons = {
+                'morning': '🌅',
+                'afternoon': '🌞',
+                'evening': '🌙'
+            };
+
+            const icon = timeSlotIcons[arg.event.extendedProps.timeSlot] || '';
+            return {
+                html: `
+                    <div class="fc-event-time">${icon} ${arg.timeText}</div>
+                    <div class="fc-event-title">${arg.event.title}</div>
+                `
+            };
         },
         eventDidMount: function(info) {
             // Teslimat detay tooltip'i
