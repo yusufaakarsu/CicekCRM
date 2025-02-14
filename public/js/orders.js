@@ -2,7 +2,26 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHeader();
     loadOrders();
     
-    // Durum butonları için event listener'ları ekle
+    // Modal olaylarını dinle
+    const orderDetailModal = document.getElementById('orderDetailModal');
+    
+    // Modal açılırken
+    orderDetailModal.addEventListener('show.bs.modal', () => {
+        // Butonların erişilebilirliğini etkinleştir
+        orderDetailModal.querySelectorAll('.status-btn').forEach(btn => {
+            btn.setAttribute('tabindex', '0');
+        });
+    });
+    
+    // Modal kapanırken
+    orderDetailModal.addEventListener('hide.bs.modal', () => {
+        // Butonların erişilebilirliğini devre dışı bırak
+        orderDetailModal.querySelectorAll('.status-btn').forEach(btn => {
+            btn.setAttribute('tabindex', '-1');
+        });
+    });
+    
+    // Durum butonları için event listener
     document.addEventListener('click', (e) => {
         if (e.target.closest('.status-btn')) {
             const button = e.target.closest('.status-btn');
@@ -12,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Modal açıldığında inert attribute'unu kaldır
-    const orderDetailModal = document.getElementById('orderDetailModal');
     orderDetailModal.addEventListener('shown.bs.modal', () => {
         const buttonGroup = orderDetailModal.querySelector('.btn-group');
         if (buttonGroup.hasAttribute('inert')) {
