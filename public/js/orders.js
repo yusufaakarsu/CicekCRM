@@ -27,8 +27,8 @@ function setupFilters() {
         }
     });
 
-    // Apply date filter button
-    document.getElementById('applyDateFilter').addEventListener('click(() => {
+    // Apply date filter button - Düzeltilen satır
+    document.getElementById('applyDateFilter').addEventListener('click', () => {
         const start = document.getElementById('startDate').value;
         const end = document.getElementById('endDate').value;
         
