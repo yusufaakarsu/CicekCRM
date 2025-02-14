@@ -572,4 +572,54 @@ api.put('/orders/:id/cancel', async (c) => {
   }
 });
 
+// Sipariş durumu güncelle
+api.put('/orders/:id/status', async (c) => {
+  const db = c.env.DB;
+  const { id } = c.req.param();
+  const { status } = await c.req.json();
+  
+  try {
+    await db.prepare(`
+      UPDATE orders 
+      SET status = ?,
+          updated_at = DATETIME('now')
+      WHERE id = ?
+    `).bind(status, id).run();
+
+    return c.json({ success: true });
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
+// Sipariş detaylarını getir
+api.get('/orders/:id/details', async (c) => {
+  const db = c.env.DB;
+  const { id } = c.req.param();
+  
+  try {
+    // Sipariş ve müşteri bilgileri
+    const order = await db.prepare(`
+      SELECT 
+        o.*,
+        c.name as customer_name,
+        GROUP_CONCAT(oi.quantity || 'x ' || p.name) as items
+      FROM orders o
+      LEFT JOIN customers c ON o.customer_id = c.id
+      LEFT JOIN order_items oi ON o.id = oi.order_id
+      LEFT JOIN products p ON oi.product_id = p.id
+      WHERE o.id = ?
+      GROUP BY o.id
+    `).bind(id).first();
+
+    if (!order) {
+      return c.json({ error: 'Order not found' }, 404);
+    }
+
+    return c.json(order);
+  } catch (error) {
+    return c.json({ error: 'Database error' }, 500);
+  }
+});
+
 export default api

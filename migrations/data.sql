@@ -205,3 +205,36 @@ INSERT INTO purchase_order_items (id, purchase_order_id, product_id, quantity, u
 ('poi1', 'po1', 'p1', 20, 100.00, 2000.00),
 ('poi2', 'po2', 'p2', 15, 100.00, 1500.00),
 ('poi3', 'po3', 'p4', 10, 300.00, 3000.00);
+
+-- 40 Yeni Müşteri Ekleme
+INSERT INTO customers (id, name, email, phone, address, city, district, notes, customer_type, company_name) VALUES
+('c16', 'Hakan Yıldırım', 'hakan@email.com', '5551234567', 'Nişantaşı', 'İstanbul', 'Şişli', 'Premium müşteri', 'retail', null),
+('c17', 'Sevgi Kılıç', 'sevgi@firma.com', '5552345678', 'Zorlu Center', 'İstanbul', 'Beşiktaş', 'Kurumsal müşteri', 'corporate', 'Zorlu AŞ'),
+('c18', 'Cem Karaca', 'cem@email.com', '5553456789', 'Moda', 'İstanbul', 'Kadıköy', null, 'retail', null),
+('c19', 'Pınar Demir', 'pinar@firma.com', '5554567890', 'Kanyon', 'İstanbul', 'Levent', 'Aylık düzenli sipariş', 'corporate', 'Kanyon AVM'),
+('c20', 'Tolga Sarı', 'tolga@email.com', '5555678901', 'Bebek', 'İstanbul', 'Beşiktaş', 'VIP müşteri', 'retail', null);
+
+-- 40 Yeni Sipariş Ekleme
+INSERT INTO orders (id, customer_id, status, delivery_date, delivery_time_slot, delivery_address, delivery_city, delivery_district, 
+                   recipient_name, recipient_phone, subtotal, delivery_fee, total_amount, payment_status, payment_method) VALUES
+('o78', 'c16', 'new', datetime('now', '+3 days'), 'morning', 'Nişantaşı', 'İstanbul', 'Şişli', 'Hakan Yıldırım', '5551234567', 450.00, 20.00, 470.00, 'pending', 'credit_card'),
+('o79', 'c17', 'preparing', datetime('now', '+3 days'), 'afternoon', 'Zorlu Center', 'İstanbul', 'Beşiktaş', 'Sevgi Kılıç', '5552345678', 380.00, 20.00, 400.00, 'paid', 'bank_transfer'),
+('o80', 'c18', 'new', datetime('now', '+3 days'), 'evening', 'Moda', 'İstanbul', 'Kadıköy', 'Cem Karaca', '5553456789', 290.00, 20.00, 310.00, 'pending', 'cash');
+
+-- 40 Yeni Sipariş Detayı Ekleme
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, cost_price) VALUES
+('oi78', 'o78', 'p1', 2, 250.00, 150.00),
+('oi79', 'o79', 'p2', 3, 180.00, 100.00),
+('oi80', 'o80', 'p3', 1, 150.00, 80.00);
+
+-- 40 Yeni Tedarikçi Siparişi Ekleme
+INSERT INTO purchase_orders (id, supplier_id, status, total_amount, payment_status, created_at) VALUES
+('po4', 's1', 'ordered', 2500.00, 'pending', datetime('now', '-2 days')),
+('po5', 's2', 'received', 1800.00, 'paid', datetime('now', '-1 day')),
+('po6', 's3', 'draft', 3200.00, 'pending', datetime('now'));
+
+-- 40 Yeni Tedarikçi Sipariş Detayı Ekleme
+INSERT INTO purchase_order_items (id, purchase_order_id, product_id, quantity, unit_price, total_price) VALUES
+('poi4', 'po4', 'p1', 25, 100.00, 2500.00),
+('poi5', 'po5', 'p2', 18, 100.00, 1800.00),
+('poi6', 'po6', 'p4', 12, 300.00, 3600.00);
