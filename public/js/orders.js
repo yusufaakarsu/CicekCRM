@@ -202,3 +202,96 @@ function showToast(message, type = 'error') {
     const bsToast = new bootstrap.Toast(toastEl);
     bsToast.show();
 }
+
+// Sipariş detay modalını göster
+async function showOrderDetails(orderId) {
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}`);
+        if (!response.ok) throw new Error('API Hatası');
+        const order = await response.json();
+
+        const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+        
+        // Modal içeriğini doldur
+        document.getElementById('order-detail-id').textContent = order.id;
+        document.getElementById('order-detail-customer').textContent = order.customer_name;
+        document.getElementById('order-detail-delivery').textContent = formatDate(order.delivery_date);
+        document.getElementById('order-detail-address').textContent = order.delivery_address;
+        document.getElementById('order-detail-amount').textContent = formatCurrency(order.total_amount);
+        document.getElementById('order-detail-status').innerHTML = getStatusBadge(order.status);
+        document.getElementById('order-detail-items').innerHTML = order.items
+            ? order.items.split(',').join('<br>')
+            : '-';
+
+        modal.show();
+    } catch (error) {
+        showToast('Sipariş detayları yüklenemedi!', 'error');
+    }
+}
+
+// Sipariş düzenleme modalını göster
+async function editOrder(orderId) {
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}`);
+        if (!response.ok) throw new Error('API Hatası');
+        const order = await response.json();
+
+        const modal = new bootstrap.Modal(document.getElementById('editOrderModal'));
+        const form = document.getElementById('editOrderForm');
+        
+        form.elements['id'].value = order.id;
+        form.elements['delivery_date'].value = order.delivery_date.slice(0, 16); // datetime-local için
+        form.elements['delivery_address'].value = order.delivery_address;
+        form.elements['status'].value = order.status;
+
+        modal.show();
+    } catch (error) {
+        showToast('Sipariş bilgileri yüklenemedi!', 'error');
+    }
+}
+
+// Sipariş güncelle
+async function updateOrder() {
+    const form = document.getElementById('editOrderForm');
+    const orderId = form.elements['id'].value;
+
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                delivery_date: form.elements['delivery_date'].value,
+                delivery_address: form.elements['delivery_address'].value,
+                status: form.elements['status'].value
+            })
+        });
+
+        if (!response.ok) throw new Error('API Hatası');
+
+        bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
+        showToast('Sipariş güncellendi', 'success');
+        loadOrders(); // Tabloyu yenile
+    } catch (error) {
+        showToast('Sipariş güncellenemedi!', 'error');
+    }
+}
+
+// Sipariş iptal et
+async function cancelOrder(orderId) {
+    if (!confirm('Bu siparişi iptal etmek istediğinize emin misiniz?')) return;
+
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}/cancel`, {
+            method: 'PUT'
+        });
+
+        if (!response.ok) throw new Error('API Hatası');
+
+        showToast('Sipariş iptal edildi', 'success');
+        loadOrders(); // Tabloyu yenile
+    } catch (error) {
+        showToast('Sipariş iptal edilemedi!', 'error');
+    }
+}
