@@ -1,7 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadHeader();
     loadDashboardData();
-    setInterval(loadDashboardData, 30000); // Her 30 saniyede bir güncelle
+    
+    // Tab değişikliğini dinle
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', (e) => {
+            const target = e.target.getAttribute('data-bs-target').replace('#', '');
+            updateDeliveryCounts(document.getElementById(target + 'Orders'));
+        });
+    });
 });
 
 async function loadDashboardData() {
@@ -42,17 +49,20 @@ function updateStats(data) {
     `;
 }
 
-function updateDeliveryCounts(orders) {
+function updateDeliveryCounts(tableElement) {
+    if (!tableElement) return;
+    
     const counts = {
         morning: 0,
         afternoon: 0,
         evening: 0
     };
 
-    // Teslimat saatlerine göre say
-    orders.forEach(order => {
-        if (counts.hasOwnProperty(order.delivery_time_slot)) {
-            counts[order.delivery_time_slot]++;
+    // Tablodaki görünür satırları say
+    tableElement.querySelectorAll('tbody tr:not(.d-none)').forEach(row => {
+        const timeSlot = row.querySelector('.delivery-time')?.classList[1];
+        if (timeSlot) {
+            counts[timeSlot]++;
         }
     });
 
@@ -327,4 +337,4 @@ function showToast(message, type = 'error') {
 }
 
 // Otomatik yenileme
-setInterval(loadDashboardData, 30000); // Her 30 saniyede bir
+setInterval(loadDashboardData, 120000); // 2 dakikada bir güncelle
