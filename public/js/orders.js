@@ -55,10 +55,10 @@ async function loadOrders() {
                 </td>
                 <td>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-info" onclick="showOrderDetails(${order.id})" title="Detay">
+                        <button class="btn btn-outline-info" onclick="showOrderDetails('${order.id}')" title="Detay">
                             <i class="bi bi-eye"></i>
                         </button>
-                        <button class="btn btn-outline-primary" onclick="editOrder(${order.id})" title="Düzenle">
+                        <button class="btn btn-outline-primary" onclick="editOrder('${order.id}')" title="Düzenle">
                             <i class="bi bi-pencil"></i>
                         </button>
                     </div>
@@ -97,20 +97,30 @@ async function showOrderDetails(orderId) {
         const response = await fetch(`${API_URL}/orders/${orderId}/details`);
         if (!response.ok) throw new Error('API Hatası');
         const order = await response.json();
+        
+        // Modal içeriğini temizle ve doldur
+        Object.keys(order).forEach(key => {
+            const element = document.getElementById(`order-detail-${key}`);
+            if (element) {
+                if (key === 'status') {
+                    element.innerHTML = getStatusBadge(order[key]);
+                } else if (key === 'total_amount') {
+                    element.textContent = formatCurrency(order[key]);
+                } else if (key === 'items') {
+                    element.innerHTML = order.items_list ? order.items_list.split(',').map(item => 
+                        `<div>${item.trim()}</div>`
+                    ).join('') : '-';
+                } else {
+                    element.textContent = order[key] || '-';
+                }
+            }
+        });
 
+        // Modalı göster
         const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
-        
-        // Modal içeriğini doldur
-        document.getElementById('order-detail-id').textContent = order.id;
-        document.getElementById('order-detail-customer').textContent = order.customer_name;
-        document.getElementById('order-detail-delivery').textContent = formatDate(order.delivery_date);
-        document.getElementById('order-detail-address').textContent = order.delivery_address;
-        document.getElementById('order-detail-status').innerHTML = getStatusBadge(order.status);
-        document.getElementById('order-detail-amount').textContent = formatCurrency(order.total_amount);
-        
         modal.show();
     } catch (error) {
-        showToast('Sipariş detayları yüklenemedi');
+        showToast('Sipariş detayları yüklenemedi', 'error');
     }
 }
 
