@@ -48,12 +48,13 @@ async function loadOrders() {
         const filters = getActiveFilters();
         const queryString = new URLSearchParams(filters).toString();
 
-        const response = await fetch(`${API_URL}/orders`); // Şimdilik basit sorgu
+        // Filtered endpoint'ini kullan
+        const response = await fetch(`${API_URL}/orders/filtered?${queryString}`);
         if (!response.ok) throw new Error('API Hatası');
-        const orders = await response.json();
+        const data = await response.json();
 
-        renderOrders(orders);
-        renderPagination(orders.length);
+        renderOrders(data.orders);
+        renderPagination(data.total); // Toplam kayıt sayısını al
 
     } catch (error) {
         console.error('Siparişler yüklenirken hata:', error);
@@ -130,15 +131,35 @@ function renderPagination(total) {
         // Önceki sayfa
         html += `
             <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage - 1})">Önceki</a>
+                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">Önceki</a>
             </li>
         `;
 
+        // İlk sayfa
+        if (currentPage > 3) {
+            html += `
+                <li class="page-item">
+                    <a class="page-link" href="javascript:void(0)" onclick="changePage(1)">1</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            `;
+        }
+
         // Sayfa numaraları
-        for (let i = 1; i <= totalPages; i++) {
+        for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
             html += `
                 <li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${i})">${i}</a>
+                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                </li>
+            `;
+        }
+
+        // Son sayfa
+        if (currentPage < totalPages - 2) {
+            html += `
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <li class="page-item">
+                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${totalPages})">${totalPages}</a>
                 </li>
             `;
         }
@@ -146,7 +167,7 @@ function renderPagination(total) {
         // Sonraki sayfa
         html += `
             <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage + 1})">Sonraki</a>
+                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">Sonraki</a>
             </li>
         `;
     }
@@ -158,6 +179,8 @@ function changePage(page) {
     if (page < 1) return;
     currentPage = page;
     loadOrders();
+    // Sayfanın üstüne kaydır
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Toast mesajları için fonksiyonlar
