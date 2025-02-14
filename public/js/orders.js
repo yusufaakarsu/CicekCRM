@@ -98,25 +98,38 @@ async function showOrderDetails(orderId) {
         if (!response.ok) throw new Error('API Hatası');
         const order = await response.json();
         
-        // Modal içeriğini temizle ve doldur
+        // Tüm detay alanlarını doldur
         Object.keys(order).forEach(key => {
             const element = document.getElementById(`order-detail-${key}`);
             if (element) {
-                if (key === 'status') {
-                    element.innerHTML = getStatusBadge(order[key]);
-                } else if (key === 'total_amount') {
-                    element.textContent = formatCurrency(order[key]);
-                } else if (key === 'items') {
-                    element.innerHTML = order.items_list ? order.items_list.split(',').map(item => 
-                        `<div>${item.trim()}</div>`
-                    ).join('') : '-';
-                } else {
-                    element.textContent = order[key] || '-';
+                switch(key) {
+                    case 'status':
+                        element.innerHTML = getStatusBadge(order[key]);
+                        break;
+                    case 'payment_status':
+                        element.innerHTML = getPaymentStatusBadge(order[key]);
+                        break;
+                    case 'total_amount':
+                        element.textContent = formatCurrency(order[key]);
+                        break;
+                    case 'payment_method':
+                        element.textContent = formatPaymentMethod(order[key]);
+                        break;
+                    case 'items_list':
+                        element.innerHTML = order[key] ? order[key].split(',').map(item => 
+                            `<div class="list-group-item">${item.trim()}</div>`
+                        ).join('') : '-';
+                        break;
+                    default:
+                        element.textContent = order[key] || '-';
                 }
             }
         });
 
-        // Modalı göster
+        // Durum butonlarını aktif/pasif yap
+        updateStatusButtons(order.status);
+
+        // Modal göster
         const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
         modal.show();
     } catch (error) {
@@ -210,4 +223,51 @@ function getPaymentStatusBadge(status) {
     
     const [text, color] = statusMap[status] || ['Bilinmiyor', 'secondary'];
     return `<span class="badge bg-${color}">${text}</span>`;
+}
+
+// Sipariş durumu güncelle
+async function updateOrderStatus(status) {
+    const orderId = document.getElementById('order-detail-id').textContent;
+    
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+
+        if (!response.ok) throw new Error('Güncelleme başarısız');
+
+        // Status badge'i güncelle
+        document.getElementById('order-detail-status').innerHTML = getStatusBadge(status);
+        
+        // Durum butonlarını güncelle
+        updateStatusButtons(status);
+        
+        // Tabloyu yenile
+        loadOrders();
+        
+        showToast('Sipariş durumu güncellendi', 'success');
+    } catch (error) {
+        showToast('Durum güncellenirken hata oluştu', 'error');
+    }
+}
+
+// Durum butonlarının aktif/pasif durumunu güncelle
+function updateStatusButtons(currentStatus) {
+    const statusFlow = ['new', 'preparing', 'ready', 'delivering', 'delivered'];
+    const currentIndex = statusFlow.indexOf(currentStatus);
+    
+    statusFlow.forEach((status, index) => {
+        const button = document.querySelector(`[onclick="updateOrderStatus('${status}')"]`);
+        if (button) {
+            if (index <= currentIndex) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        }
+    });
 }
