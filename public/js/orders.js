@@ -50,7 +50,7 @@ function setupFilters() {
 
 async function loadOrders() {
     try {
-        const response = await fetch(`${API_URL}/orders`); // /api/orders yerine /orders kullan
+        const response = await fetch(`${API_URL}/orders`);
         if (!response.ok) throw new Error('API Hatası');
         const orders = await response.json();
         
@@ -60,7 +60,18 @@ async function loadOrders() {
             return;
         }
         
-        tbody.innerHTML = orders.map(order => renderOrder(order)).join('');
+        tbody.innerHTML = orders.map(order => `
+            <tr>
+                <td>${order.customer_name}</td>
+                <td>${order.items ? order.items.map(item => `${item.quantity}x ${item.name}`).join('<br>') : '-'}</td>
+                <td>
+                    ${formatDate(order.delivery_date)}<br>
+                    <small class="text-muted">${order.delivery_address}</small>
+                </td>
+                <td>${getStatusBadge(order.status)}</td>
+                <td>${formatCurrency(order.total_amount)}</td>
+            </tr>
+        `).join('');
     } catch (error) {
         console.error('Siparişler yüklenirken hata:', error);
         showToast('Siparişler yüklenemedi');
