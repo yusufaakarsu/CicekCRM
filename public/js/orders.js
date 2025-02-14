@@ -50,7 +50,7 @@ function setupFilters() {
 
 async function loadOrders() {
     try {
-        const response = await fetch(`${API_URL}/api/orders`);
+        const response = await fetch(`${API_URL}/orders`); // /api/orders yerine /orders kullan
         if (!response.ok) throw new Error('API Hatası');
         const orders = await response.json();
         
