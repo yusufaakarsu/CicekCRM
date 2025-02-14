@@ -353,6 +353,35 @@ async function cancelOrder(orderId) {
     }
 }
 
+// Durum ve ödeme metin fonksiyonları
+function getDeliveryStatus(status) {
+    const statuses = {
+        'pending': 'Bekliyor',
+        'assigned': 'Atandı',
+        'on_way': 'Yolda',
+        'completed': 'Teslim Edildi',
+        'failed': 'Başarısız'
+    };
+    return statuses[status] || status;
+}
+
+function getPaymentStatus(status) {
+    const statuses = {
+        'pending': 'Beklemede',
+        'paid': 'Ödendi',
+        'refunded': 'İade Edildi'
+    };
+    return statuses[status] || status;
+}
+
+function formatPrice(amount) {
+    return new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: 'TRY'
+    }).format(amount);
+}
+
+// Sipariş satırını oluştur
 function renderOrder(order) {
     return `
         <tr class="border-b">
@@ -363,24 +392,24 @@ function renderOrder(order) {
             </td>
             <td class="px-4 py-2">
                 <div>${order.customer_name}</div>
-                <div class="text-sm text-gray-600">${order.customer_phone}</div>
+                <div class="text-sm text-gray-600">${order.customer_phone || ''}</div>
             </td>
             <td class="px-4 py-2">
-                <div>${formatDate(order.delivery_date)} - ${order.delivery_time_slot}</div>
+                <div>${formatDate(order.delivery_date)} ${order.delivery_time_slot || ''}</div>
                 <div class="text-sm">${order.delivery_address}</div>
-                <div class="text-sm">${order.delivery_district}, ${order.delivery_city}</div>
+                <div class="text-sm">${order.delivery_district || ''}, ${order.delivery_city || ''}</div>
                 ${order.delivery_notes ? `<div class="text-sm text-red-600">${order.delivery_notes}</div>` : ''}
             </td>
             <td class="px-4 py-2">
                 <div>${order.recipient_name}</div>
-                <div class="text-sm">${order.recipient_phone}</div>
+                <div class="text-sm">${order.recipient_phone || ''}</div>
                 ${order.recipient_note ? `<div class="text-sm text-red-600">${order.recipient_note}</div>` : ''}
                 ${order.card_message ? `<div class="text-sm italic">"${order.card_message}"</div>` : ''}
             </td>
             <td class="px-4 py-2">
                 <div class="font-bold">${formatPrice(order.total_amount)}</div>
                 <div class="status-badge ${order.payment_status}">${getPaymentStatus(order.payment_status)}</div>
-                <div class="text-sm">${order.payment_method}</div>
+                <div class="text-sm">${order.payment_method || ''}</div>
             </td>
             <td class="px-4 py-2">
                 <div class="btn-group btn-group-sm">
