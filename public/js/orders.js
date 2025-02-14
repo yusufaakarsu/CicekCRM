@@ -66,8 +66,10 @@ async function loadOrders() {
                 <td>#${order.id}</td>
                 <td>
                     <div>${formatDate(order.created_at)}</div>
-                    <small class="text-muted">Teslimat: ${formatDate(order.delivery_date)}</small>
-                    <small class="text-muted d-block">${formatTimeSlot(order.delivery_time_slot)}</small>
+                    <small class="text-muted">
+                        Teslimat: ${formatDate(order.delivery_date)}<br>
+                        ${formatDeliveryTime(order.delivery_time_slot)}
+                    </small>
                 </td>
                 <td>
                     <div>${order.customer_name || '-'}</div>
