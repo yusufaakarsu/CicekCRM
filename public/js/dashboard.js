@@ -6,13 +6,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadDashboardData() {
     try {
-        const response = await fetch(`${API_URL}/api/dashboard`);
-        if (!response.ok) throw new Error('API Hatası');
-        const data = await response.json();
+        // Tüm verileri tek seferde alalım
+        const [dashboard, todayOrders, tomorrowOrders, weekOrders] = await Promise.all([
+            fetch(`${API_URL}/api/dashboard`).then(r => r.json()),
+            fetch(`${API_URL}/orders/filtered?date_filter=today`).then(r => r.json()),
+            fetch(`${API_URL}/orders/filtered?date_filter=tomorrow`).then(r => r.json()),
+            fetch(`${API_URL}/orders/filtered?date_filter=week`).then(r => r.json())
+        ]);
 
-        // İstatistik kartları güncelleme
-        updateStats(data);
-        updateDeliveryCounts();
+        // İstatistikleri güncelle
+        updateStats(dashboard);
+        
+        // Teslimat sayılarını güncelle
+        updateDeliveryCounts(todayOrders.orders);
+        
+        // Tabloları güncelle
+        updateOrdersTable('todayOrders', todayOrders.orders);
+        updateOrdersTable('tomorrowOrders', tomorrowOrders.orders);
+        updateOrdersTable('weekOrders', weekOrders.orders);
 
     } catch (error) {
         console.error('Dashboard hatası:', error);
@@ -33,46 +44,31 @@ function updateStats(data) {
     `;
 }
 
-// Teslimat sayılarını güncelle
-async function updateDeliveryCounts() {
-    try {
-        const response = await fetch(`${API_URL}/orders/filtered?date_filter=today`);
-        if (!response.ok) throw new Error('API Hatası');
-        const data = await response.json();
+function updateDeliveryCounts(orders) {
+    const counts = {
+        morning: 0,
+        afternoon: 0,
+        evening: 0
+    };
 
-        const counts = {
-            morning: 0,
-            afternoon: 0,
-            evening: 0
-        };
+    // Teslimat saatlerine göre say
+    orders.forEach(order => {
+        if (counts.hasOwnProperty(order.delivery_time_slot)) {
+            counts[order.delivery_time_slot]++;
+        }
+    });
 
-        // Teslimat saatlerine göre say
-        data.orders.forEach(order => {
-            if (counts.hasOwnProperty(order.delivery_time_slot)) {
-                counts[order.delivery_time_slot]++;
-            }
-        });
-
-        // Badge'leri güncelle
-        document.getElementById('morning-count').textContent = counts.morning;
-        document.getElementById('afternoon-count').textContent = counts.afternoon;
-        document.getElementById('evening-count').textContent = counts.evening;
-
-        // Siparişleri tabloya ekle
-        updateOrdersTable(data.orders);
-
-    } catch (error) {
-        console.error('Teslimat sayıları yüklenemedi:', error);
-    }
+    // Badge'leri güncelle
+    document.getElementById('morning-count').textContent = counts.morning;
+    document.getElementById('afternoon-count').textContent = counts.afternoon;
+    document.getElementById('evening-count').textContent = counts.evening;
 }
 
-// Sipariş tablosunu güncelle
-function updateOrdersTable(orders) {
-    const tableId = 'todayOrders';
+function updateOrdersTable(tableId, orders) {
     const table = document.getElementById(tableId);
     if (!table) return;
 
-    // Tablo başlıklarını ekle
+    // Tablo başlıklarını ve içeriği oluştur
     table.innerHTML = `
         <thead>
             <tr>
@@ -94,19 +90,27 @@ function updateOrdersTable(orders) {
                     </td>
                     <td>${order.customer_name || '-'}</td>
                     <td>
-                        <div>${order.recipient_name}</div>
-                        <small>${order.recipient_phone}</small>
+                        <div>${order.recipient_name || '-'}</div>
+                        <small>${order.recipient_phone || '-'}</small>
                     </td>
                     <td>
-                        <div>${order.delivery_address}</div>
+                        <div>${order.delivery_address || '-'}</div>
                         <small>${order.delivery_notes || ''}</small>
                     </td>
                     <td>${getStatusBadge(order.status)}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-info" 
-                                onclick="showOrderDetails('${order.id}')">
-                            <i class="bi bi-eye"></i>
-                        </button>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-info" 
+                                    onclick="showOrderDetails('${order.id}')"
+                                    title="Detay">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" 
+                                    onclick="editOrder('${order.id}')"
+                                    title="Düzenle">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('')}
