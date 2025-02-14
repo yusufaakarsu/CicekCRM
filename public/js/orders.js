@@ -17,19 +17,53 @@ async function loadOrders() {
         
         tbody.innerHTML = orders.map(order => `
             <tr>
-                <td>${order.id}</td>
-                <td>${order.customer_name}</td>
-                <td>${order.items ? order.items.map(item => `${item.quantity}x ${item.name}`).join('<br>') : '-'}</td>
+                <td>#${order.id}</td>
                 <td>
-                    ${formatDate(order.delivery_date)}<br>
-                    <small class="text-muted">${order.delivery_address}</small>
+                    <div>${formatDate(order.created_at)}</div>
+                    <small class="text-muted">Teslimat: ${formatDate(order.delivery_date)}</small>
                 </td>
-                <td>${getStatusBadge(order.status)}</td>
-                <td>${formatCurrency(order.total_amount)}</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary" onclick="showOrderDetails('${order.id}')">
-                        <i class="bi bi-eye"></i>
-                    </button>
+                    <div>${order.customer_name || '-'}</div>
+                    <small class="text-muted">${order.customer_phone || ''}</small>
+                </td>
+                <td>
+                    <div class="text-wrap" style="max-width: 200px;">
+                        ${order.delivery_address || '-'}
+                        <small class="d-block text-muted">${order.delivery_notes || ''}</small>
+                    </div>
+                </td>
+                <td>
+                    <div>${order.recipient_name || '-'}</div>
+                    <small class="text-muted">${order.recipient_phone || ''}</small>
+                    ${order.card_message ? `<small class="d-block text-info">"${order.card_message}"</small>` : ''}
+                </td>
+                <td>
+                    <div class="text-wrap" style="max-width: 150px;">
+                        ${order.items ? order.items.map(item => 
+                            `<div>${item.quantity}x ${item.name}</div>`
+                        ).join('') : '-'}
+                    </div>
+                </td>
+                <td>
+                    <div class="mb-1">${getStatusBadge(order.status)}</div>
+                    <div>${getPaymentStatusBadge(order.payment_status)}</div>
+                </td>
+                <td>
+                    <div class="fw-bold">${formatCurrency(order.total_amount)}</div>
+                    <small class="text-muted">${order.payment_method || ''}</small>
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="showOrderDetails(${order.id})" title="Detaylar">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="editOrder(${order.id})" title="Düzenle">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-outline-success" onclick="updateStatus(${order.id})" title="Durum Güncelle">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -80,4 +114,29 @@ async function showOrderDetails(orderId) {
     } catch (error) {
         showToast('Sipariş detayları yüklenemedi');
     }
+}
+
+// Durum badge'leri için yardımcı fonksiyonlar
+function getStatusBadge(status) {
+    const statusMap = {
+        new: ['Yeni', 'warning'],
+        preparing: ['Hazırlanıyor', 'info'],
+        delivering: ['Yolda', 'primary'],
+        delivered: ['Teslim Edildi', 'success'],
+        cancelled: ['İptal', 'danger']
+    };
+    
+    const [text, color] = statusMap[status] || ['Bilinmiyor', 'secondary'];
+    return `<span class="badge bg-${color}">${text}</span>`;
+}
+
+function getPaymentStatusBadge(status) {
+    const statusMap = {
+        paid: ['Ödendi', 'success'],
+        pending: ['Bekliyor', 'warning'],
+        cancelled: ['İptal', 'danger']
+    };
+    
+    const [text, color] = statusMap[status] || ['Bilinmiyor', 'secondary'];
+    return `<span class="badge bg-${color}">${text}</span>`;
 }
