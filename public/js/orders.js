@@ -214,6 +214,7 @@ function getStatusBadge(status) {
     const statusMap = {
         new: ['Yeni', 'warning'],
         preparing: ['Hazırlanıyor', 'info'],
+        ready: ['Hazır', 'secondary'],
         delivering: ['Yolda', 'primary'],
         delivered: ['Teslim Edildi', 'success'],
         cancelled: ['İptal', 'danger']
@@ -249,7 +250,7 @@ async function updateOrderStatus(status) {
 
         if (!response.ok) throw new Error('Güncelleme başarısız');
 
-        // Status badge'i güncelle
+        // Modal ve tablo badge'lerini güncelle
         document.getElementById('order-detail-status').innerHTML = getStatusBadge(status);
         
         // Durum butonlarını güncelle
@@ -269,20 +270,25 @@ function updateStatusButtons(currentStatus) {
     const statusFlow = ['new', 'preparing', 'ready', 'delivering', 'delivered'];
     const currentIndex = statusFlow.indexOf(currentStatus);
     
+    // Modal'ı bul
+    const modal = document.getElementById('orderDetailModal');
+    
     // Butonları bul ve güncelle
-    document.querySelectorAll('[data-status]').forEach(button => {
+    modal.querySelectorAll('[data-status]').forEach(button => {
         const status = button.dataset.status;
         const statusIndex = statusFlow.indexOf(status);
         
-        if (statusIndex <= currentIndex) {
-            button.classList.add('active');
+        button.classList.remove('active', 'disabled');
+        button.removeAttribute('disabled');
+        button.removeAttribute('aria-disabled');
+        
+        if (statusIndex < currentIndex) {
+            button.classList.add('active', 'disabled');
             button.setAttribute('disabled', 'true');
             button.setAttribute('aria-disabled', 'true');
-        } else if (statusIndex === currentIndex + 1) {
-            button.classList.remove('active', 'disabled');
-            button.removeAttribute('disabled');
-            button.removeAttribute('aria-disabled');
-        } else {
+        } else if (statusIndex === currentIndex) {
+            button.classList.add('active');
+        } else if (statusIndex !== currentIndex + 1) {
             button.classList.add('disabled');
             button.setAttribute('disabled', 'true');
             button.setAttribute('aria-disabled', 'true');
