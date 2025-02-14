@@ -94,18 +94,28 @@ function renderOrders(orders) {
     
     if (orders && orders.length > 0) {
         tbody.innerHTML = orders.map(order => {
-            // items string olarak geliyor, split ile array'e çeviriyoruz
             const items = order.items ? order.items.split(',') : [];
             
             return `
                 <tr style="cursor: pointer">
                     <td onclick="showOrderDetails('${order.id}')">${order.id}</td>
-                    <td onclick="showOrderDetails('${order.id}')">${order.customer_name}</td>
-                    <td onclick="showOrderDetails('${order.id}')">${items.join('<br>')}</td>
                     <td onclick="showOrderDetails('${order.id}')">
-                        ${formatDate(order.delivery_date)}<br>
-                        <small class="text-muted">${order.delivery_address}</small>
+                        <div class="mb-1"><strong>${order.customer_name}</strong></div>
+                        <div class="text-muted small">
+                            <i class="bi bi-person"></i> ${order.recipient_name}<br>
+                            <i class="bi bi-telephone"></i> ${order.recipient_phone}
+                        </div>
                     </td>
+                    <td onclick="showOrderDetails('${order.id}')">
+                        <div class="mb-1">
+                            <i class="bi bi-calendar"></i> ${formatDate(order.delivery_date)}
+                            <small class="text-muted">${order.delivery_time_slot || ''}</small>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="bi bi-geo-alt"></i> ${order.recipient_address || order.delivery_address}
+                        </div>
+                    </td>
+                    <td onclick="showOrderDetails('${order.id}')">${items.join('<br>')}</td>
                     <td onclick="showOrderDetails('${order.id}')">${formatCurrency(order.total_amount)}</td>
                     <td>
                         <div class="dropdown">
@@ -317,6 +327,10 @@ async function showOrderDetails(orderId) {
         // Modal içeriğini doldur
         document.getElementById('order-detail-id').textContent = order.id;
         document.getElementById('order-detail-customer').textContent = order.customer_name;
+        document.getElementById('order-detail-recipient-name').textContent = order.recipient.name;
+        document.getElementById('order-detail-recipient-phone').textContent = order.recipient.phone;
+        document.getElementById('order-detail-recipient-note').textContent = order.recipient.note || '-';
+        document.getElementById('order-detail-card-message').textContent = order.recipient.card_message || '-';
         document.getElementById('order-detail-delivery').textContent = formatDate(order.delivery_date);
         document.getElementById('order-detail-address').textContent = order.delivery_address;
         document.getElementById('order-detail-amount').textContent = formatCurrency(order.total_amount);

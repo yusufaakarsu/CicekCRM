@@ -1,4 +1,3 @@
-
 -- Müşteriler Tablosu
 CREATE TABLE customers (
     id TEXT PRIMARY KEY,
@@ -67,10 +66,12 @@ CREATE TABLE orders (
     delivery_district TEXT NOT NULL,
     delivery_notes TEXT,
     
-    -- Alıcı Bilgileri
+    -- Alıcı Bilgileri (Sipariş verenden farklı olabilir)
     recipient_name TEXT NOT NULL,
     recipient_phone TEXT NOT NULL,
-    recipient_notes TEXT,
+    recipient_note TEXT,
+    recipient_address TEXT,
+    card_message TEXT,
     
     -- Fiyatlandırma
     subtotal DECIMAL(10,2) NOT NULL,        -- Ara toplam

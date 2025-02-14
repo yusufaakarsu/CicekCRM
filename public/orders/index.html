@@ -84,9 +84,12 @@
                         <thead>
                             <tr>
                                 <th>Sipariş No</th>
-                                <th>Müşteri</th>
+                                <th style="min-width:200px">
+                                    Sipariş Veren<br>
+                                    <small class="text-muted">Alıcı</small>
+                                </th>
+                                <th>Teslimat Bilgileri</th>
                                 <th>Ürünler</th>
-                                <th>Teslimat Tarihi</th>
                                 <th>Tutar</th>
                                 <th>Durum</th>
                                 <th>İşlemler</th>
@@ -120,8 +123,19 @@
                     <dl>
                         <dt>Sipariş No</dt>
                         <dd id="order-detail-id">-</dd>
-                        <dt>Müşteri</dt>
+                        <dt>Sipariş Veren</dt>
                         <dd id="order-detail-customer">-</dd>
+                        <dt>Alıcı</dt>
+                        <dd>
+                            <strong id="order-detail-recipient-name">-</strong><br>
+                            <small id="order-detail-recipient-phone" class="text-muted">-</small>
+                        </dd>
+                        <dt>Alıcı Adresi</dt>
+                        <dd id="order-detail-recipient-address">-</dd>
+                        <dt>Not</dt>
+                        <dd id="order-detail-recipient-note">-</dd>
+                        <dt>Kart Mesajı</dt>
+                        <dd id="order-detail-card-message">-</dd>
                         <dt>Teslimat Tarihi</dt>
                         <dd id="order-detail-delivery">-</dd>
                         <dt>Adres</dt>

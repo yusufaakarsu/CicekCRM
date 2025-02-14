@@ -37,9 +37,14 @@ next-env.d.ts
 # Workers
 /workers/
 
+# Cloudflare Workers üretim dosyaları
+/workers/api/*.sql
+/workers/api/dist
+/workers/api/.dev.vars
+/workers/api/wrangler.toml
 
-
-
+# Database
+/database/backups
 
 backup/# backup# additional
 node_modules/
