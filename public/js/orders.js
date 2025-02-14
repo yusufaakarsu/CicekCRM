@@ -39,6 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Teslimat zaman dilimini formatlayan fonksiyon
+function formatTimeSlot(slot) {
+    const slots = {
+        'morning': 'Sabah (09:00-12:00)',
+        'afternoon': 'Öğlen (12:00-17:00)',
+        'evening': 'Akşam (17:00-21:00)'
+    };
+    return slots[slot] || slot;
+}
+
 async function loadOrders() {
     try {
         const response = await fetch(`${API_URL}/orders`);
@@ -57,6 +67,7 @@ async function loadOrders() {
                 <td>
                     <div>${formatDate(order.created_at)}</div>
                     <small class="text-muted">Teslimat: ${formatDate(order.delivery_date)}</small>
+                    <small class="text-muted d-block">${formatTimeSlot(order.delivery_time_slot)}</small>
                 </td>
                 <td>
                     <div>${order.customer_name || '-'}</div>
@@ -161,6 +172,10 @@ async function showOrderDetails(orderId) {
                 }
             }
         });
+
+        // Tarih ve saat bilgisini ayrı göster
+        document.getElementById('order-detail-delivery_date').textContent = 
+            `${formatDate(order.delivery_date)} - ${formatTimeSlot(order.delivery_time_slot)}`;
 
         // Durum butonlarını aktif/pasif yap
         updateStatusButtons(order.status);

@@ -267,9 +267,12 @@ api.get('/orders', async (c) => {
       .prepare(`
         SELECT o.*, 
                c.name as customer_name,
+               c.phone as customer_phone,
                GROUP_CONCAT(
                  oi.quantity || 'x ' || p.name
-               ) as items_list
+               ) as items_list,
+               o.delivery_time_slot,
+               DATE(o.delivery_date) as delivery_date
         FROM orders o
         LEFT JOIN customers c ON o.customer_id = c.id
         LEFT JOIN order_items oi ON o.id = oi.order_id
