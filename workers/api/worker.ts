@@ -238,9 +238,16 @@ api.get('/orders', async (c) => {
   try {
     const { results } = await db
       .prepare(`
-        SELECT o.*, c.name as customer_name 
+        SELECT o.*, 
+               c.name as customer_name,
+               GROUP_CONCAT(
+                 oi.quantity || 'x ' || p.name
+               ) as items_list
         FROM orders o
         LEFT JOIN customers c ON o.customer_id = c.id
+        LEFT JOIN order_items oi ON o.id = oi.order_id
+        LEFT JOIN products p ON oi.product_id = p.id
+        GROUP BY o.id
         ORDER BY o.delivery_date DESC
       `)
       .all()

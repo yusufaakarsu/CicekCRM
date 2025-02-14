@@ -39,8 +39,8 @@ async function loadOrders() {
                 </td>
                 <td>
                     <div class="text-wrap" style="max-width: 150px;">
-                        ${order.items ? order.items.map(item => 
-                            `<div>${item.quantity}x ${item.name}</div>`
+                        ${order.items_list ? order.items_list.split(',').map(item => 
+                            `<div>${item.trim()}</div>`
                         ).join('') : '-'}
                     </div>
                 </td>
