@@ -478,25 +478,47 @@ async function searchCustomer() {
         customerDetails.classList.remove('d-none');
         
         if (customer.found === false) {
-            // Yeni müşteri formu
+            // Yeni müşteri formu - tüm alanları temizle
             document.querySelector('[name="customer_id"]').value = '';
             document.querySelector('[name="customer_name"]').value = '';
             document.querySelector('[name="customer_email"]').value = '';
             document.querySelector('[name="customer_address"]').value = '';
+            document.querySelector('[name="customer_city"]').value = '';
+            document.querySelector('[name="customer_district"]').value = '';
+            document.querySelector('[name="customer_type"]').value = 'retail';
+            document.querySelector('[name="company_name"]').value = '';
+            document.querySelector('[name="tax_number"]').value = '';
+            document.querySelector('[name="special_dates"]').value = '';
+            document.querySelector('[name="customer_notes"]').value = '';
             
-            document.querySelector('[name="customer_name"]').removeAttribute('readonly');
-            document.querySelector('[name="customer_email"]').removeAttribute('readonly');
-            document.querySelector('[name="customer_address"]').removeAttribute('readonly');
+            // Form alanlarını düzenlenebilir yap
+            const inputs = customerDetails.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => input.removeAttribute('readonly'));
+            
+            // Kurumsal alanları gizle
+            document.getElementById('companyFields').classList.add('d-none');
         } else {
             // Mevcut müşteri bilgilerini doldur
             document.querySelector('[name="customer_id"]').value = customer.id;
             document.querySelector('[name="customer_name"]').value = customer.name;
             document.querySelector('[name="customer_email"]').value = customer.email || '';
             document.querySelector('[name="customer_address"]').value = customer.address || '';
+            document.querySelector('[name="customer_city"]').value = customer.city || '';
+            document.querySelector('[name="customer_district"]').value = customer.district || '';
+            document.querySelector('[name="customer_type"]').value = customer.customer_type;
+            document.querySelector('[name="company_name"]').value = customer.company_name || '';
+            document.querySelector('[name="tax_number"]').value = customer.tax_number || '';
+            document.querySelector('[name="special_dates"]').value = customer.special_dates || '';
+            document.querySelector('[name="customer_notes"]').value = customer.notes || '';
             
-            document.querySelector('[name="customer_name"]').setAttribute('readonly', true);
-            document.querySelector('[name="customer_email"]').setAttribute('readonly', true);
-            document.querySelector('[name="customer_address"]').setAttribute('readonly', true);
+            // Form alanlarını salt okunur yap
+            const inputs = customerDetails.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => input.setAttribute('readonly', true));
+            
+            // Kurumsal alanları göster/gizle
+            if (customer.customer_type === 'corporate') {
+                document.getElementById('companyFields').classList.remove('d-none');
+            }
         }
     } catch (error) {
         showToast('Müşteri araması başarısız', 'error');
@@ -520,7 +542,14 @@ async function saveOrder() {
                 name: form.querySelector('[name="customer_name"]').value,
                 phone: form.querySelector('[name="customer_phone"]').value,
                 email: form.querySelector('[name="customer_email"]').value,
-                address: form.querySelector('[name="customer_address"]').value
+                address: form.querySelector('[name="customer_address"]').value,
+                city: form.querySelector('[name="customer_city"]').value,
+                district: form.querySelector('[name="customer_district"]').value,
+                customer_type: form.querySelector('[name="customer_type"]').value,
+                company_name: form.querySelector('[name="company_name"]')?.value || null,
+                tax_number: form.querySelector('[name="tax_number"]')?.value || null,
+                special_dates: form.querySelector('[name="special_dates"]').value,
+                notes: form.querySelector('[name="customer_notes"]').value
             };
             
             const customerResponse = await fetch(`${API_URL}/customers`, {
@@ -577,5 +606,17 @@ async function saveOrder() {
         showToast('Sipariş başarıyla oluşturuldu', 'success');
     } catch (error) {
         showToast('Sipariş oluşturulurken hata oluştu', 'error');
+    }
+}
+
+// Kurumsal alanları göster/gizle
+function toggleCompanyFields() {
+    const customerType = document.querySelector('[name="customer_type"]').value;
+    const companyFields = document.getElementById('companyFields');
+    
+    if (customerType === 'corporate') {
+        companyFields.classList.remove('d-none');
+    } else {
+        companyFields.classList.add('d-none');
     }
 }
