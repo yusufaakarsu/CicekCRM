@@ -597,12 +597,8 @@ async function saveOrder() {
 
         if (!response.ok) throw new Error('Kayıt başarısız');
 
-        // Modalı kapat
-        bootstrap.Modal.getInstance(document.getElementById('newOrderModal')).hide();
-        
-        // Tabloyu yenile
-        loadOrders();
-        
+        // Modal kapatma yerine yönlendirme yap
+        window.location.href = '/orders/index.html';
         showToast('Sipariş başarıyla oluşturuldu', 'success');
     } catch (error) {
         showToast('Sipariş oluşturulurken hata oluştu', 'error');
