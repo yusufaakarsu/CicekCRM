@@ -107,59 +107,25 @@ body {
     gap: 1rem;
 }
 
-/* Takvim Özelleştirmeleri */
-.fc {
-    background: white;
-    padding: 1rem;
-    border-radius: 0.5rem;
-}
-
-.fc .fc-toolbar-title {
-    font-size: 1.25rem;
-}
-
-.fc .fc-button {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-}
-
-.fc .fc-event {
-    border: none;
-    padding: 2px 4px;
-    margin: 1px 0;
-}
-
-.delivery-status-new { 
-    background-color: #fcf4d4 !important;
-    color: #8b6e04 !important;
-}
-
-.delivery-status-preparing { 
-    background-color: #e3f5fc !important;
-    color: #045c6e !important;
-}
-
-.delivery-status-delivering { 
-    background-color: #e5e5fc !important;
-    color: #2d0764 !important;
-}
-
-.delivery-status-delivered { 
-    background-color: #d4edda !important;
-    color: #155724 !important;
-}
-
-/* Takvim mobil düzenlemeler */
-@media (max-width: 768px) {
-    .fc .fc-toolbar {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .fc .fc-toolbar-title {
-        font-size: 1.2rem;
-    }
-}
+/* Silinen Takvim Stilleri:
+.fc-event { }
+.delivery-time-morning { }
+.delivery-time-afternoon { }
+.delivery-time-evening { }
+.fc { }
+.fc .fc-toolbar-title { }
+.fc .fc-button { }
+.fc .fc-event { }
+.delivery-status-new { }
+.delivery-status-preparing { }
+.delivery-status-delivering { }
+.delivery-status-delivered { }
+.fc-timeGridDay-view { }
+.fc-timeGridWeek-view { }
+.month-view-event { }
+.fc-event-count { }
+.fc .fc-view-harness { }
+*/
 
 /* Teslimat Listesi */
 .delivery-item {
