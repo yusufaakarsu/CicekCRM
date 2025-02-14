@@ -42,6 +42,7 @@ function hideLoading(element) {
 
 // Format tarih
 function formatDate(date) {
+    if (!date) return '-';
     return new Intl.DateTimeFormat('tr-TR', {
         day: '2-digit',
         month: '2-digit',
