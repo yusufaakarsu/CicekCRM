@@ -135,6 +135,29 @@ wrangler d1 execute cicek-crm-db --remote --file=./migrations/data.sql
 
 ```
 
+## Git Komutları
+
+Development branch'te çalışırken:
+
+git add .
+git commit -m "feat: Değişiklik mesajı"
+git push origin development
+
+## Worker Komutları
+
+API değişikliklerinde:
+
+cd /Users/yusuf/Downloads/kod/CicekCRM/workers/api
+wrangler deploy
+
+## Veritabanı Komutları
+
+Schema ve veri güncellemelerinde:
+
+cd /Users/yusuf/Downloads/kod/CicekCRM/workers/api
+wrangler d1 execute cicek-crm-db --remote --file=./schema.sql
+wrangler d1 execute cicek-crm-db --remote --file=./migrations/data.sql
+
 ## Modüller
 
 ### Siparişler
