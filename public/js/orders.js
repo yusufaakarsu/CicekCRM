@@ -352,3 +352,46 @@ async function cancelOrder(orderId) {
         showToast('Sipariş iptal edilemedi!', 'error');
     }
 }
+
+function renderOrder(order) {
+    return `
+        <tr class="border-b">
+            <td class="px-4 py-2">${order.id}</td>
+            <td class="px-4 py-2">
+                <div class="status-badge ${order.status}">${getStatusText(order.status)}</div>
+                <div class="status-badge ${order.delivery_status}">${getDeliveryStatus(order.delivery_status)}</div>
+            </td>
+            <td class="px-4 py-2">
+                <div>${order.customer_name}</div>
+                <div class="text-sm text-gray-600">${order.customer_phone}</div>
+            </td>
+            <td class="px-4 py-2">
+                <div>${formatDate(order.delivery_date)} - ${order.delivery_time_slot}</div>
+                <div class="text-sm">${order.delivery_address}</div>
+                <div class="text-sm">${order.delivery_district}, ${order.delivery_city}</div>
+                ${order.delivery_notes ? `<div class="text-sm text-red-600">${order.delivery_notes}</div>` : ''}
+            </td>
+            <td class="px-4 py-2">
+                <div>${order.recipient_name}</div>
+                <div class="text-sm">${order.recipient_phone}</div>
+                ${order.recipient_note ? `<div class="text-sm text-red-600">${order.recipient_note}</div>` : ''}
+                ${order.card_message ? `<div class="text-sm italic">"${order.card_message}"</div>` : ''}
+            </td>
+            <td class="px-4 py-2">
+                <div class="font-bold">${formatPrice(order.total_amount)}</div>
+                <div class="status-badge ${order.payment_status}">${getPaymentStatus(order.payment_status)}</div>
+                <div class="text-sm">${order.payment_method}</div>
+            </td>
+            <td class="px-4 py-2">
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="showOrderDetails('${order.id}')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="editOrder('${order.id}')">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `;
+}
