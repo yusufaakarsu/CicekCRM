@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ana Sayfa</title>
+    <title>Ana Sayfa - Çiçek CRM</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
@@ -11,125 +11,111 @@
 <body data-page="dashboard">
     <div id="header"></div>
 
-    <div class="container mt-4">
-        <!-- İstatistik Kartları -->
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-box"></i> Bugünkü Siparişler</h5>
-                        <p class="card-text h3" id="ordersToday">Yükleniyor...</p>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sol Bölüm -->
+            <div class="col-lg-3">
+                <div class="row g-3">
+                    <!-- İstatistik Kartları -->
+                    <div class="col-12">
+                        <div class="card border-primary">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">Bugün</h6>
+                                <h4 class="card-title mb-3" id="ordersToday">-</h4>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Tamamlanan</small>
+                                    <h6 class="mb-0" id="deliveredOrders">-</h6>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-check-circle"></i> Teslim Edilen Siparişler</h5>
-                        <p class="card-text h3" id="deliveredOrders">Yükleniyor...</p>
+                    
+                    <!-- Teslimat Özeti -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Teslimat Programı</h6>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>Sabah</span>
+                                    <span class="badge bg-warning rounded-pill" id="morning-count">0</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>Öğlen</span>
+                                    <span class="badge bg-info rounded-pill" id="afternoon-count">0</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>Akşam</span>
+                                    <span class="badge bg-primary rounded-pill" id="evening-count">0</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-truck"></i> Bekleyen Teslimatlar</h5>
-                        <p class="card-text h3" id="pendingDeliveries">Yükleniyor...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Operasyonel Bilgiler -->
-        <div class="row g-3 mt-4">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-exclamation-triangle"></i> Düşük Stok
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="h3" id="lowStockCount">Yükleniyor...</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-calendar3"></i> Teslimat Programı
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Bugün:</span>
-                            <strong id="today-orders">Yükleniyor...</strong>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Yarın:</span>
-                            <strong id="tomorrow-orders">Yükleniyor...</strong>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span>Sonraki Gün:</span>
-                            <strong id="future-orders">Yükleniyor...</strong>
+                    <!-- Hızlı İşlemler -->
+                    <div class="col-12">
+                        <div class="d-grid gap-2">
+                            <a href="/orders/new.html" class="btn btn-primary">
+                                <i class="bi bi-plus-lg"></i> Yeni Sipariş
+                            </a>
+                            <button class="btn btn-outline-secondary" onclick="refreshDashboard()">
+                                <i class="bi bi-arrow-clockwise"></i> Yenile
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-box-seam"></i> Yarın İçin Gerekli Ürünler
-                        </h5>
-                    </div>
-                    <div class="list-group list-group-flush" id="low-stock-list">
-                        <div class="list-group-item text-center">Yükleniyor...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Son İşlemler -->
-        <div class="row g-3 mt-4">
-            <div class="col-12">
+            <!-- Sağ Bölüm -->
+            <div class="col-lg-9">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="bi bi-box"></i> Son Siparişler ve Detayları</h5>
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <li class="nav-item">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#today">Bugün</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tomorrow">Yarın</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#week">Bu Hafta</button>
+                            </li>
+                        </ul>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="recentOrders">
-                                <thead>
-                                    <tr>
-                                        <th>Müşteri</th>
-                                        <th>Ürünler</th>
-                                        <th>Teslimat</th>
-                                        <th>Durum</th>
-                                        <th>Tutar</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="6" class="text-center">Yükleniyor...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="today">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="todayOrders">
+                                        <!-- Bugünün siparişleri -->
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tomorrow">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="tomorrowOrders">
+                                        <!-- Yarının siparişleri -->
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="week">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="weekOrders">
+                                        <!-- Haftalık siparişler -->
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="alert alert-info mt-4" id="status">
-            <i class="bi bi-info-circle"></i> Durum: Yükleniyor...
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/common.js"></script>
-    <script src="/src/dashboard.js"></script>
+    <script src="/js/dashboard.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             loadHeader();

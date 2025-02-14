@@ -293,3 +293,42 @@ body {
     font-size: 0.9em;
     white-space: normal;
 }
+
+/* Dashboard stilleri */
+.delivery-count {
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.quick-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: var(--bs-gray-100);
+}
+
+.stat-item {
+    flex: 1;
+    text-align: center;
+}
+
+.stat-item .value {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.stat-item .label {
+    font-size: 0.875rem;
+    color: var(--bs-gray-600);
+}
+
+/* Responsive ayarlar */
+@media (max-width: 992px) {
+    .dashboard-sidebar {
+        margin-bottom: 1rem;
+    }
+}

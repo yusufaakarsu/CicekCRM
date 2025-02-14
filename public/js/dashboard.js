@@ -1,59 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadHeader();
     loadDashboardData();
-    loadRecentOrders();
-    setInterval(loadDashboardData, 30000);
+    setInterval(loadDashboardData, 30000); // Her 30 saniyede bir güncelle
 });
 
 async function loadDashboardData() {
     try {
-        console.log('API çağrısı yapılıyor:', `${API_URL}/api/dashboard`);
-        const response = await fetch(`${API_URL}/api/dashboard`);
+        const [dashboard, today, tomorrow, week] = await Promise.all([
+            fetch(`${API_URL}/api/dashboard`).then(r => r.json()),
+            fetch(`${API_URL}/orders/filtered?date_filter=today`).then(r => r.json()),
+            fetch(`${API_URL}/orders/filtered?date_filter=tomorrow`).then(r => r.json()),
+            fetch(`${API_URL}/orders/filtered?date_filter=week`).then(r => r.json())
+        ]);
+
+        // İstatistikleri güncelle
+        updateStats(dashboard);
         
-        if (!response.ok) {
-            console.error('API Hata:', response.status, response.statusText);
-            throw new Error(`API yanıt vermedi: ${response.status}`);
-        }
+        // Teslimat sayılarını güncelle
+        updateDeliveryCounts(today.orders);
         
-        const data = await response.json();
-        console.log('API Yanıt:', data);
-        
-        // Teslimat istatistikleri
-        const { deliveryStats } = data;
-        document.getElementById('ordersToday').textContent = `${deliveryStats.total_orders} Sipariş`;
-        document.getElementById('pendingDeliveries').innerHTML = 
-            `${deliveryStats.delivered_orders} / ${deliveryStats.total_orders} Teslimat
-            <p class="text-muted">${deliveryStats.pending_orders} bekleyen teslimat</p>`;
+        // Sipariş tablolarını güncelle
+        updateOrdersTable('todayOrders', today.orders);
+        updateOrdersTable('tomorrowOrders', tomorrow.orders);
+        updateOrdersTable('weekOrders', week.orders);
 
-        // Yarının ürün ihtiyaçları
-        const stockList = document.getElementById('low-stock-list');
-        if (data.tomorrowNeeds.results && data.tomorrowNeeds.results.length > 0) {
-            stockList.innerHTML = data.tomorrowNeeds.results.map(item => `
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>${item.name}</span>
-                    <span>İhtiyaç: ${item.needed_quantity} adet</span>
-                </div>
-            `).join('');
-        }
-
-        // Teslimat programı
-        const summary = data.orderSummary.results;
-        if (summary && summary.length >= 3) {
-            document.getElementById('today-orders').textContent = `${summary[0].count} Sipariş`;
-            document.getElementById('tomorrow-orders').textContent = `${summary[1].count} Sipariş`;
-            document.getElementById('future-orders').textContent = `${summary[2].count} Sipariş`;
-        }
-
-        // Düşük stok sayısı
-        document.getElementById('lowStockCount').textContent = `${data.lowStock} Ürün`;
-
-        document.getElementById('status').innerHTML = `
-            <i class="bi bi-check-circle"></i> Son güncelleme: ${new Date().toLocaleTimeString()}
-        `;
     } catch (error) {
-        console.error('Dashboard hatası:', error);
-        document.getElementById('status').innerHTML = `
-            <i class="bi bi-exclamation-triangle"></i> Hata: ${error.message}
-        `;
+        console.error('Dashboard yüklenirken hata:', error);
+        showToast('Veriler yüklenirken hata oluştu', 'error');
     }
 }
+
+function refreshDashboard() {
+    showToast('Yenileniyor...', 'info');
+    loadDashboardData();
+}
+
+// Diğer yardımcı fonksiyonlar buraya eklenecek...

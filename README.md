@@ -51,9 +51,6 @@ wrangler deploy
 ├── migrations/                      # Veritabanı veri dosyaları
 │   └── data.sql                    # Örnek veriler ve seed data
 ├── public/                         # Frontend ana klasörü
-│   ├── calendar/                   # Takvim görünümü modülü
-│   │   ├── calendar.js            # Takvim mantığı ve görünümü
-│   │   └── index.html            # Takvim sayfası
 │   ├── common/                    # Ortak UI bileşenleri
 │   │   ├── header.html           # Site üst menü
 │   │   └── layout.html           # Ana sayfa düzeni
@@ -80,6 +77,8 @@ wrangler deploy
 │       ├── package.json       # API bağımlılıkları
 │       ├── worker.ts         # API endpoint kodları
 │       └── wrangler.toml     # Cloudflare yapılandırması
+├── .gitignore                  # 
+├── package.json                # 
 ├── PLAN.md                    # Geliştirme planı ve notlar
 ├── README.md                  # Proje dokümantasyonu
 └── schema.sql               # Veritabanı tablo yapısı
