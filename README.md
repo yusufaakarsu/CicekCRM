@@ -95,3 +95,12 @@ git push origin deployment
 - [ ] Mobil uygulama
 - [ ] Müşteri portalı
 - [ ] Tedarikçi portalı
+
+
+git add .
+
+git commit -m "Update orders table structure and UI"
+
+git checkout development
+git merge main
+git push origin development

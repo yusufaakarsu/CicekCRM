@@ -29,18 +29,18 @@ INSERT INTO customers (id, name, email, phone, address, city, district, notes, c
 ('c26', 'Damla Şahin', 'damla@email.com', '5578901234', 'Kartal', 'İstanbul', 'Kartal', null, 'retail', null, null),
 ('c27', 'Ege Yılmaz', 'ege@email.com', '5579012345', 'Pendik', 'İstanbul', 'Pendik', 'Premium müşteri', 'retail', null, null),
 ('c28', 'Sude Arslan', 'sude@firma.com', '5580123456', 'Brandium', 'İstanbul', 'Ataşehir', 'Kurumsal', 'corporate', 'Brandium AVM', null),
-('c29', 'Deniz Yalçın', 'deniz@email.com', '5561234567', 'Kozyatağı', 'İstanbul', 'Kadıköy', 'Premium müşteri', 'retail', null, null),
-('c30', 'Selin Avcı', 'selin@firma.com', '5562345678', 'Metrocity', 'İstanbul', '4.Levent', 'Kurumsal müşteri', 'corporate', 'Metro AŞ', null),
-('c31', 'Burak Özdemir', 'burak@email.com', '5563456789', 'Göztepe', 'İstanbul', 'Kadıköy', null, 'retail', null, null),
-('c32', 'Aylin Kaya', 'aylin@firma.com', '5564567890', 'Akasya', 'İstanbul', 'Üsküdar', 'Aylık düzenli sipariş', 'corporate', 'Akasya AVM', null),
-('c33', 'Mert Yılmaz', 'mert@email.com', '5565678901', 'Ortaköy', 'İstanbul', 'Beşiktaş', 'VIP müşteri', 'retail', null, null),
-('c34', 'İrem Şahin', 'irem@email.com', '5566789012', 'Ataköy', 'İstanbul', 'Bakırköy', null, 'retail', null, null),
-('c35', 'Kaan Demir', 'kaan@firma.com', '5567890123', 'Capacity', 'İstanbul', 'Bakırköy', 'Kurumsal müşteri', 'corporate', 'Capacity AVM', null),
-('c36', 'Zehra Çelik', 'zehra@email.com', '5568901234', 'Maltepe', 'İstanbul', 'Maltepe', null, 'retail', null, null),
-('c37', 'Onur Aksoy', 'onur@firma.com', '5569012345', 'Hilltown', 'İstanbul', 'Maltepe', 'Düzenli sipariş', 'corporate', 'Hilltown AVM', null),
-('c38', 'Ceren Yıldız', 'ceren@email.com', '5570123456', 'Acıbadem', 'İstanbul', 'Kadıköy', 'Premium müşteri', 'retail', null, null),
-('c39', 'Emre Kılıç', 'emre@email.com', '5571234567', 'Beylikdüzü', 'İstanbul', 'Beylikdüzü', null, 'retail', null, null),
-('c40', 'Aslı Öztürk', 'asli@firma.com', '5572345678', 'Marmara Forum', 'İstanbul', 'Bakırköy', 'Kurumsal', 'corporate', 'Marmara Forum', null);
+('c29', 'Gökhan Tekin', 'gokhan@email.com', '5581234567', 'Suadiye', 'İstanbul', 'Kadıköy', 'Premium müşteri', 'retail', null, null),
+('c30', 'Merve Yücel', 'merve@firma.com', '5582345678', 'İstinye Park', 'İstanbul', 'Sarıyer', 'Kurumsal müşteri', 'corporate', 'İstinye Park AVM', null),
+('c31', 'Tolga Aydın', 'tolga@email.com', '5583456789', 'Erenköy', 'İstanbul', 'Kadıköy', null, 'retail', null, null),
+('c32', 'Şeyma Demir', 'seyma@firma.com', '5584567890', 'Palladium', 'İstanbul', 'Ataşehir', 'Aylık düzenli sipariş', 'corporate', 'Palladium AVM', null),
+('c33', 'Oğuz Kara', 'oguz@email.com', '5585678901', 'Arnavutköy', 'İstanbul', 'Beşiktaş', 'VIP müşteri', 'retail', null, null),
+('c34', 'Bengü Çetin', 'bengu@email.com', '5586789012', 'Yeşilköy', 'İstanbul', 'Bakırköy', null, 'retail', null, null),
+('c35', 'Serhat Yıldırım', 'serhat@firma.com', '5587890123', 'Carousel', 'İstanbul', 'Bakırköy', 'Kurumsal müşteri', 'corporate', 'Carousel AVM', null),
+('c36', 'Nilüfer Koç', 'nilufer@email.com', '5588901234', 'Dragos', 'İstanbul', 'Maltepe', null, 'retail', null, null),
+('c37', 'Barış Özkan', 'baris@firma.com', '5589012345', 'Watergarden', 'İstanbul', 'Ataşehir', 'Düzenli sipariş', 'corporate', 'Watergarden AVM', null),
+('c38', 'Meltem Güneş', 'meltem@email.com', '5590123456', 'Küçükyalı', 'İstanbul', 'Maltepe', 'Premium müşteri', 'retail', null, null),
+('c39', 'Uğur Şahin', 'ugur@email.com', '5591234567', 'Beylikdüzü Migros', 'İstanbul', 'Beylikdüzü', null, 'retail', null, null),
+('c40', 'Pelin Yalın', 'pelin@firma.com', '5592345678', 'Torium', 'İstanbul', 'Beylikdüzü', 'Kurumsal', 'corporate', 'Torium AVM', null);
 
 -- Tedarikçiler
 INSERT INTO suppliers (id, name, contact_name, phone, email, address, tax_number) VALUES
