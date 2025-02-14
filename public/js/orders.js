@@ -27,12 +27,18 @@ function setupFilters() {
         }
     });
 
-    // Custom date inputs
-    ['startDate', 'endDate'].forEach(id => {
-        document.getElementById(id).addEventListener('change', () => {
-            currentPage = 1;
-            loadOrders();
-        });
+    // Apply date filter button
+    document.getElementById('applyDateFilter').addEventListener('click', () => {
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        
+        if (!start || !end) {
+            showToast('Lütfen tarih aralığını tam olarak seçin', 'warning');
+            return;
+        }
+        
+        currentPage = 1;
+        loadOrders();
     });
 
     // Sort filter
@@ -70,9 +76,13 @@ function getActiveFilters() {
 
     const dateFilter = document.getElementById('dateFilter').value;
     if (dateFilter === 'custom') {
-        filters.start_date = document.getElementById('startDate').value;
-        filters.end_date = document.getElementById('endDate').value;
-    } else {
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        if (start && end) {
+            filters.start_date = start;
+            filters.end_date = end;
+        }
+    } else if (dateFilter !== 'all') {
         filters.date_filter = dateFilter;
     }
 

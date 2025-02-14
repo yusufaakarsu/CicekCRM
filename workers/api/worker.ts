@@ -466,10 +466,10 @@ api.put('/customers/:id', async (c) => {
 // Filtrelenmiş siparişleri getir
 api.get('/orders/filtered', async (c) => {
   const db = c.env.DB;
-  const { status, date_filter, start_date, end_date, sort, page, per_page } = c.req.query();
+  const { status, date_filter, start_date, end_date, sort, page = '1', per_page = '10' } = c.req.query();
   
   try {
-    let query = `
+    let baseQuery = `
       SELECT 
         o.*,
         c.name as customer_name,
@@ -481,11 +481,11 @@ api.get('/orders/filtered', async (c) => {
       WHERE 1=1
     `;
     
-    const params = [];
+    const params: any[] = [];
 
     // Status filtresi
     if (status) {
-      query += ` AND o.status = ?`;
+      baseQuery += ` AND o.status = ?`;
       params.push(status);
     }
 
@@ -493,54 +493,67 @@ api.get('/orders/filtered', async (c) => {
     if (date_filter) {
       switch (date_filter) {
         case 'today':
-          query += ` AND DATE(o.delivery_date) = DATE('now')`;
+          baseQuery += ` AND DATE(o.delivery_date) = DATE('now')`;
           break;
         case 'tomorrow':
-          query += ` AND DATE(o.delivery_date) = DATE('now', '+1 day')`;
+          baseQuery += ` AND DATE(o.delivery_date) = DATE('now', '+1 day')`;
           break;
         case 'week':
-          query += ` AND DATE(o.delivery_date) BETWEEN DATE('now') AND DATE('now', '+7 days')`;
+          baseQuery += ` AND DATE(o.delivery_date) BETWEEN DATE('now') AND DATE('now', '+7 days')`;
           break;
         case 'month':
-          query += ` AND strftime('%Y-%m', o.delivery_date) = strftime('%Y-%m', 'now')`;
+          baseQuery += ` AND strftime('%Y-%m', o.delivery_date) = strftime('%Y-%m', 'now')`;
           break;
       }
     } else if (start_date && end_date) {
-      query += ` AND DATE(o.delivery_date) BETWEEN ? AND ?`;
+      baseQuery += ` AND DATE(o.delivery_date) BETWEEN ? AND ?`;
       params.push(start_date, end_date);
     }
 
+    // Önce toplam kayıt sayısını al
+    const countQuery = `
+      SELECT COUNT(DISTINCT o.id) as total 
+      FROM orders o 
+      LEFT JOIN customers c ON o.customer_id = c.id
+      WHERE 1=1 
+      ${status ? 'AND o.status = ?' : ''}
+      ${date_filter === 'today' ? "AND DATE(o.delivery_date) = DATE('now')" : ''}
+      ${date_filter === 'tomorrow' ? "AND DATE(o.delivery_date) = DATE('now', '+1 day')" : ''}
+      ${date_filter === 'week' ? "AND DATE(o.delivery_date) BETWEEN DATE('now') AND DATE('now', '+7 days')" : ''}
+      ${date_filter === 'month' ? "AND strftime('%Y-%m', o.delivery_date) = strftime('%Y-%m', 'now')" : ''}
+      ${(start_date && end_date) ? 'AND DATE(o.delivery_date) BETWEEN ? AND ?' : ''}
+    `;
+    
+    const countParams = status ? [status] : [];
+    if (start_date && end_date) countParams.push(start_date, end_date);
+    
+    const { total } = await db.prepare(countQuery).bind(...countParams).first() as { total: number };
+
     // Grup ve sıralama
-    query += ` GROUP BY o.id`;
+    baseQuery += ` GROUP BY o.id`;
 
     // Sıralama
     if (sort) {
       const [field, direction] = sort.split('_');
       const sortField = field === 'date' ? 'o.delivery_date' : 'o.total_amount';
-      query += ` ORDER BY ${sortField} ${direction.toUpperCase()}`;
+      baseQuery += ` ORDER BY ${sortField} ${direction.toUpperCase()}`;
     } else {
-      query += ` ORDER BY o.delivery_date DESC`;
+      baseQuery += ` ORDER BY o.delivery_date DESC`;
     }
 
-    // Toplam kayıt sayısı
-    const countQuery = query.replace(
-      'SELECT o.*, c.name as customer_name, GROUP_CONCAT(oi.quantity || \'x \' || p.name) as items',
-      'SELECT COUNT(DISTINCT o.id) as total'
-    );
-    const { total } = await db.prepare(countQuery).bind(...params).first();
-
     // Sayfalama
-    const pageNum = parseInt(page) || 1;
-    const perPage = parseInt(per_page) || 10;
+    const pageNum = parseInt(page);
+    const perPage = parseInt(per_page);
     const offset = (pageNum - 1) * perPage;
     
-    query += ` LIMIT ? OFFSET ?`;
+    baseQuery += ` LIMIT ? OFFSET ?`;
     params.push(perPage, offset);
 
-    const { results } = await db.prepare(query).bind(...params).all();
+    // Ana sorguyu çalıştır
+    const { results: orders } = await db.prepare(baseQuery).bind(...params).all();
 
     return c.json({
-      orders: results,
+      orders,
       total,
       page: pageNum,
       per_page: perPage,
