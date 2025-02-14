@@ -1,9 +1,12 @@
 {
     "workbench.editor.limit.enabled": true,
-    "workbench.editor.limit.value": 30,         // Working Set limiti (varsayılan 10)
+    "workbench.editor.limit.value": 30,
     "workbench.editor.limit.perEditorGroup": true,
     "workbench.editor.showTabs": "multiple",
-    "workbench.editor.enablePreview": false,    // Dosyaları preview modunda açma
+    "workbench.editor.enablePreview": false,
+    "editor.tabSizeOnSave": true,
+    "workbench.editor.closeEmptyGroups": false,
+    "workbench.editor.focusRecentEditorAfterClose": false,
     "files.exclude": {
         "node_modules": true,
         ".git": true,
