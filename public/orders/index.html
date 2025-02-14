@@ -109,26 +109,26 @@
     </div>
 
     <!-- Sipariş Detay Modal -->
-    <div class="modal fade" id="orderDetailModal" tabindex="-1">
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Sipariş #<span id="order-detail-id"></span></h5>
-                    <div class="ms-auto btn-group">
-                        <button class="btn btn-outline-warning" onclick="updateOrderStatus('preparing')">
-                            <i class="bi bi-box-seam"></i> Hazırlanıyor
+                    <h5 class="modal-title" id="orderDetailModalLabel">Sipariş #<span id="order-detail-id"></span></h5>
+                    <div class="ms-auto btn-group" role="group" aria-label="Sipariş durumu değiştirme">
+                        <button class="btn btn-outline-warning" onclick="updateOrderStatus('preparing')" type="button">
+                            <i class="bi bi-box-seam" aria-hidden="true"></i> Hazırlanıyor
                         </button>
-                        <button class="btn btn-outline-info" onclick="updateOrderStatus('ready')">
-                            <i class="bi bi-box"></i> Hazır
+                        <button class="btn btn-outline-info" onclick="updateOrderStatus('ready')" type="button">
+                            <i class="bi bi-box" aria-hidden="true"></i> Hazır
                         </button>
-                        <button class="btn btn-outline-primary" onclick="updateOrderStatus('delivering')">
-                            <i class="bi bi-truck"></i> Yolda
+                        <button class="btn btn-outline-primary" onclick="updateOrderStatus('delivering')" type="button">
+                            <i class="bi bi-truck" aria-hidden="true"></i> Yolda
                         </button>
-                        <button class="btn btn-outline-success" onclick="updateOrderStatus('delivered')">
-                            <i class="bi bi-check-circle"></i> Teslim Edildi
+                        <button class="btn btn-outline-success" onclick="updateOrderStatus('delivered')" type="button">
+                            <i class="bi bi-check-circle" aria-hidden="true"></i> Teslim Edildi
                         </button>
                     </div>
-                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Kapat"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">

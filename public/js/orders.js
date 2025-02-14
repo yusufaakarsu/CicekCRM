@@ -247,7 +247,7 @@ async function updateOrderStatus(status) {
         updateStatusButtons(status);
         
         // Tabloyu yenile
-        loadOrders();
+        await loadOrders();
         
         showToast('Sipariş durumu güncellendi', 'success');
     } catch (error) {
@@ -260,13 +260,27 @@ function updateStatusButtons(currentStatus) {
     const statusFlow = ['new', 'preparing', 'ready', 'delivering', 'delivered'];
     const currentIndex = statusFlow.indexOf(currentStatus);
     
-    statusFlow.forEach((status, index) => {
-        const button = document.querySelector(`[onclick="updateOrderStatus('${status}')"]`);
+    // Butonları bul ve güncelle
+    const buttons = {
+        'preparing': document.querySelector('[onclick="updateOrderStatus(\'preparing\')"]'),
+        'ready': document.querySelector('[onclick="updateOrderStatus(\'ready\')"]'),
+        'delivering': document.querySelector('[onclick="updateOrderStatus(\'delivering\')"]'),
+        'delivered': document.querySelector('[onclick="updateOrderStatus(\'delivered\')"]')
+    };
+
+    // Her butonu kontrol et ve durumunu güncelle
+    Object.entries(buttons).forEach(([status, button]) => {
         if (button) {
-            if (index <= currentIndex) {
-                button.classList.add('active');
+            const statusIndex = statusFlow.indexOf(status);
+            if (statusIndex <= currentIndex) {
+                button.classList.add('active', 'disabled');
+                button.setAttribute('disabled', 'disabled');
+            } else if (statusIndex === currentIndex + 1) {
+                button.classList.remove('disabled');
+                button.removeAttribute('disabled');
             } else {
-                button.classList.remove('active');
+                button.classList.add('disabled');
+                button.setAttribute('disabled', 'disabled');
             }
         }
     });
