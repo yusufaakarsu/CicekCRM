@@ -620,3 +620,102 @@ function toggleCompanyFields() {
         companyFields.classList.add('d-none');
     }
 }
+
+// Telefon ile müşteri ara ve form alanlarını ayarla
+async function searchCustomer() {
+    const phoneInput = document.querySelector('[name="customer_phone"]');
+    const phone = phoneInput.value.replace(/\D/g, '');
+    
+    if (phone.length !== 10) {
+        showToast('Geçerli bir telefon numarası girin (5XX XXX XX XX)', 'warning');
+        return;
+    }
+    
+    const customerDetails = document.getElementById('customerDetails');
+    customerDetails.classList.remove('d-none');
+    
+    try {
+        const response = await fetch(`${API_URL}/customers/search/phone/${phone}`);
+        if (!response.ok) throw new Error('API Hatası');
+        const customer = await response.json();
+
+        const fields = [
+            'customer_name', 'customer_email', 'customer_address',
+            'customer_city', 'customer_district', 'customer_type',
+            'company_name', 'tax_number', 'special_dates', 'customer_notes'
+        ];
+        
+        if (customer.found === false) {
+            // Yeni müşteri - formu temizle ve düzenlenebilir yap
+            document.querySelector('[name="customer_id"]').value = '';
+            fields.forEach(field => {
+                const input = document.querySelector(`[name="${field}"]`);
+                if (input) {
+                    input.value = '';
+                    input.removeAttribute('readonly');
+                }
+            });
+            
+            // Form validasyonlarını aktif et
+            document.querySelector('[name="customer_name"]').setAttribute('required', 'true');
+            
+        } else {
+            // Mevcut müşteri - bilgileri doldur ve readonly yap
+            document.querySelector('[name="customer_id"]').value = customer.id;
+            
+            const mappings = {
+                name: 'customer_name',
+                email: 'customer_email',
+                address: 'customer_address',
+                city: 'customer_city',
+                district: 'customer_district',
+                customer_type: 'customer_type',
+                company_name: 'company_name',
+                tax_number: 'tax_number',
+                special_dates: 'special_dates',
+                notes: 'customer_notes'
+            };
+
+            Object.entries(mappings).forEach(([apiField, formField]) => {
+                const input = document.querySelector(`[name="${formField}"]`);
+                if (input) {
+                    input.value = customer[apiField] || '';
+                    input.setAttribute('readonly', 'true');
+                }
+            });
+            
+            // Kurumsal/bireysel alanları ayarla
+            toggleCompanyFields(customer.customer_type === 'corporate');
+        }
+        
+    } catch (error) {
+        showToast('Müşteri araması başarısız', 'error');
+    }
+}
+
+// Kurumsal müşteri alanlarını göster/gizle
+function toggleCompanyFields(isCorporate = null) {
+    const customerType = isCorporate !== null ? 
+        (isCorporate ? 'corporate' : 'retail') : 
+        document.querySelector('[name="customer_type"]').value;
+    
+    const companyFields = document.getElementById('companyFields');
+    const isRequired = customerType === 'corporate';
+    
+    if (customerType === 'corporate') {
+        companyFields.classList.remove('d-none');
+        ['company_name', 'tax_number'].forEach(field => {
+            const input = document.querySelector(`[name="${field}"]`);
+            if (input) input.required = true;
+        });
+    } else {
+        companyFields.classList.add('d-none');
+        ['company_name', 'tax_number'].forEach(field => {
+            const input = document.querySelector(`[name="${field}"]`);
+            if (input) {
+                input.required = false;
+                input.value = '';
+            }
+        });
+    }
+}
