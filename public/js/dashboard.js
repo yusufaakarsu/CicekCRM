@@ -66,7 +66,6 @@ function updateOrdersTable(tableId, orders) {
     const table = document.getElementById(tableId);
     if (!table) return;
 
-    // Tablo başlıklarını ve içeriği oluştur
     table.innerHTML = `
         <thead>
             <tr>
@@ -75,12 +74,11 @@ function updateOrdersTable(tableId, orders) {
                 <th>Alıcı</th>
                 <th>Teslimat</th>
                 <th>Durum</th>
-                <th>İşlem</th>
             </tr>
         </thead>
         <tbody>
             ${orders.map(order => `
-                <tr>
+                <tr class="order-row" data-order-id="${order.id}" style="cursor: pointer;">
                     <td>
                         <div class="delivery-time ${order.delivery_time_slot}">
                             ${formatDeliveryTime(order.delivery_time_slot)}
@@ -96,24 +94,82 @@ function updateOrdersTable(tableId, orders) {
                         <small>${order.delivery_notes || ''}</small>
                     </td>
                     <td>${getStatusBadge(order.status)}</td>
-                    <td>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-info" 
-                                    onclick="showOrderDetails('${order.id}')"
-                                    title="Detay">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <button class="btn btn-outline-secondary" 
-                                    onclick="editOrder('${order.id}')"
-                                    title="Düzenle">
-                                <i class="bi bi-pencil"></i>
-                            </button>
+                </tr>
+                <tr class="order-details d-none" data-order-id="${order.id}">
+                    <td colspan="5">
+                        <div class="p-3 bg-light">
+                            <h6 class="mb-3">Sipariş Durumu Güncelle</h6>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-warning" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                                    <i class="bi bi-box-seam"></i> Hazırlanıyor
+                                </button>
+                                <button class="btn btn-sm btn-outline-info" onclick="updateOrderStatus('${order.id}', 'ready')">
+                                    <i class="bi bi-box"></i> Hazır
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="updateOrderStatus('${order.id}', 'delivering')">
+                                    <i class="bi bi-truck"></i> Yolda
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="updateOrderStatus('${order.id}', 'delivered')">
+                                    <i class="bi bi-check-circle"></i> Teslim Edildi
+                                </button>
+                            </div>
+                            <div class="mt-3">
+                                <p class="mb-2"><strong>Sipariş Detayları:</strong></p>
+                                <p class="mb-1">Kart Mesajı: ${order.card_message || '-'}</p>
+                                <p class="mb-1">Toplam: ${formatCurrency(order.total_amount)}</p>
+                                <p class="mb-0">Oluşturulma: ${formatDate(order.created_at)}</p>
+                            </div>
                         </div>
                     </td>
                 </tr>
             `).join('')}
         </tbody>
     `;
+
+    // Satıra tıklama olayı ekle
+    table.querySelectorAll('.order-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const orderId = row.dataset.orderId;
+            const detailsRow = table.querySelector(`.order-details[data-order-id="${orderId}"]`);
+            detailsRow.classList.toggle('d-none');
+        });
+    });
+}
+
+// Sipariş durumu güncelleme fonksiyonu
+async function updateOrderStatus(orderId, newStatus) {
+    // Onay modalı göster
+    if (!confirm(`Sipariş durumunu "${getStatusText(newStatus)}" olarak güncellemek istediğinizden emin misiniz?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!response.ok) throw new Error('API Hatası');
+
+        // Başarılı güncelleme sonrası sayfayı yenile
+        loadDashboardData();
+        showToast('Sipariş durumu güncellendi', 'success');
+    } catch (error) {
+        console.error('Durum güncelleme hatası:', error);
+        showToast('Durum güncellenirken hata oluştu');
+    }
+}
+
+// Durum metni alma yardımcı fonksiyonu
+function getStatusText(status) {
+    const statusMap = {
+        'preparing': 'Hazırlanıyor',
+        'ready': 'Hazır',
+        'delivering': 'Yolda',
+        'delivered': 'Teslim Edildi'
+    };
+    return statusMap[status] || status;
 }
 
 function updateOrdersTableWithPagination(tableId, data) {

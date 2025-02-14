@@ -332,3 +332,25 @@ body {
         margin-bottom: 1rem;
     }
 }
+
+/* Sipariş satırı stilleri */
+.order-row:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+.order-row td {
+    vertical-align: middle;
+}
+
+.order-details {
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.order-details td {
+    padding: 0 !important;
+}
+
+.order-details .p-3 {
+    border-top: 1px solid #dee2e6;
+}
