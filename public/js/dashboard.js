@@ -2,11 +2,28 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHeader();
     loadDashboardData();
     
-    // Tab değişikliğini dinle
     document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', (e) => {
-            const target = e.target.getAttribute('data-bs-target').replace('#', '');
-            updateDeliveryCounts(document.getElementById(target + 'Orders'));
+        tab.addEventListener('shown.bs.tab', async (e) => {
+            const tabId = e.target.getAttribute('data-bs-target').substring(1); // # işaretini kaldır
+            let orders;
+            
+            switch(tabId) {
+                case 'today':
+                    orders = await fetch(`${API_URL}/orders/filtered?date_filter=today&per_page=1000`).then(r => r.json());
+                    updateOrdersTable('todayOrders', orders.orders);
+                    updateDeliveryCounts(orders.orders);
+                    break;
+                case 'tomorrow':
+                    orders = await fetch(`${API_URL}/orders/filtered?date_filter=tomorrow&per_page=1000`).then(r => r.json());
+                    updateOrdersTable('tomorrowOrders', orders.orders);
+                    updateDeliveryCounts(orders.orders);
+                    break;
+                case 'week':
+                    orders = await fetch(`${API_URL}/orders/filtered?date_filter=week&per_page=10&page=1`).then(r => r.json());
+                    updateOrdersTableWithPagination('weekOrders', orders);
+                    updateDeliveryCounts(orders.orders);
+                    break;
+            }
         });
     });
 });
@@ -49,20 +66,17 @@ function updateStats(data) {
     `;
 }
 
-function updateDeliveryCounts(tableElement) {
-    if (!tableElement) return;
-    
+function updateDeliveryCounts(orders) {  // Parametreyi orders olarak değiştirdik
     const counts = {
         morning: 0,
         afternoon: 0,
         evening: 0
     };
 
-    // Tablodaki görünür satırları say
-    tableElement.querySelectorAll('tbody tr:not(.d-none)').forEach(row => {
-        const timeSlot = row.querySelector('.delivery-time')?.classList[1];
-        if (timeSlot) {
-            counts[timeSlot]++;
+    // Doğrudan orders array'i üzerinde işlem yap
+    orders.forEach(order => {
+        if (counts.hasOwnProperty(order.delivery_time_slot)) {
+            counts[order.delivery_time_slot]++;
         }
     });
 
