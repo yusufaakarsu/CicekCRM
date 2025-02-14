@@ -112,7 +112,7 @@ async function loadDashboardData() {
 
 async function loadRecentOrders() {
     try {
-        const response = await fetch(`${API_URL}/orders`); // /api/orders DEĞİL! Sadece /orders!
+        const response = await fetch(`${API_URL}/orders`);
         if (!response.ok) throw new Error('API Hatası');
         const orders = await response.json();
         
@@ -131,12 +131,8 @@ async function loadRecentOrders() {
                     <td>${formatCurrency(order.total_amount)}</td>
                 </tr>
             `).join('');
-        } else {
-            recentOrdersTable.innerHTML = '<tr><td colspan="5" class="text-center">Sipariş bulunamadı</td></tr>';
         }
     } catch (error) {
         console.error('Recent orders error:', error);
-        document.getElementById('recentOrders').getElementsByTagName('tbody')[0].innerHTML = 
-            '<tr><td colspan="5" class="text-center text-danger">Siparişler yüklenirken hata oluştu!</td></tr>';
     }
 }

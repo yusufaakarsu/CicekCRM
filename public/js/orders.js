@@ -384,7 +384,7 @@ function renderOrder(order) {
         <tr>
             <td>${order.id}</td>
             <td>
-                <span class="badge bg-${getStatusColor(order.status)}">${getStatusText(order.status)}</span>
+                <span class="badge bg-${getStatusColor(order.status)}">${getStatusBadge(order.status)}</span>
             </td>
             <td>
                 <div>${order.customer_name}</div>
@@ -394,7 +394,7 @@ function renderOrder(order) {
                 <div>${formatDate(order.delivery_date)}</div>
                 <small class="text-muted">${order.delivery_address}</small>
             </td>
-            <td>${formatPrice(order.total_amount)}</td>
+            <td>${formatCurrency(order.total_amount)}</td>
             <td>
                 <div class="btn-group btn-group-sm">
                     <button class="btn btn-outline-primary" onclick="showOrderDetails('${order.id}')">
