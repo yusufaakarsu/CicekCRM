@@ -1,29 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadHeader();
-    loadDashboardData();
+    generateDateTabs();
     
     document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', async (e) => {
-            const tabId = e.target.getAttribute('data-bs-target').substring(1); // # işaretini kaldır
-            let orders;
-            
-            switch(tabId) {
-                case 'today':
-                    orders = await fetch(`${API_URL}/orders/filtered?date_filter=today&per_page=1000`).then(r => r.json());
-                    updateOrdersTable('todayOrders', orders.orders);
-                    updateDeliveryCounts(orders.orders);
-                    break;
-                case 'tomorrow':
-                    orders = await fetch(`${API_URL}/orders/filtered?date_filter=tomorrow&per_page=1000`).then(r => r.json());
-                    updateOrdersTable('tomorrowOrders', orders.orders);
-                    updateDeliveryCounts(orders.orders);
-                    break;
-                case 'week':
-                    orders = await fetch(`${API_URL}/orders/filtered?date_filter=week&per_page=10&page=1`).then(r => r.json());
-                    updateOrdersTableWithPagination('weekOrders', orders);
-                    updateDeliveryCounts(orders.orders);
-                    break;
-            }
+        tab.addEventListener('shown.bs.tab', (e) => {
+            const date = e.target.getAttribute('data-date');
+            loadOrdersForDate(date);
         });
     });
 });
@@ -351,4 +333,91 @@ function showToast(message, type = 'error') {
 }
 
 // Otomatik yenileme
-setInterval(loadDashboardData, 120000); // 2 dakikada bir güncelle
+setupAutoRefresh();
+
+// Yeni fonksiyon: Tarih sekmelerini oluştur
+function generateDateTabs() {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    
+    const dates = [yesterday, today];
+    
+    // 5 gün sonrasını ekle
+    for(let i = 1; i <= 5; i++) {
+        const nextDay = new Date(today);
+        nextDay.setDate(today.getDate() + i);
+        dates.push(nextDay);
+    }
+
+    // Tab HTML'ini oluştur
+    const tabsHtml = dates.map((date, index) => {
+        const isToday = date.toDateString() === today.toDateString();
+        const dateStr = date.toISOString().split('T')[0];
+        const displayDate = new Intl.DateTimeFormat('tr-TR', { 
+            weekday: 'short', 
+            day: 'numeric',
+            month: 'short'
+        }).format(date);
+
+        return `
+            <li class="nav-item">
+                <button class="nav-link ${isToday ? 'active' : ''}" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#day-${dateStr}"
+                        data-date="${dateStr}">
+                    ${displayDate}
+                </button>
+            </li>
+        `;
+    }).join('');
+
+    // Tab içeriklerini oluştur
+    const tabContentsHtml = dates.map((date, index) => {
+        const isToday = date.toDateString() === today.toDateString();
+        const dateStr = date.toISOString().split('T')[0];
+        
+        return `
+            <div class="tab-pane fade ${isToday ? 'show active' : ''}" id="day-${dateStr}">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="orders-${dateStr}">
+                        <!-- İçerik dinamik olarak doldurulacak -->
+                    </table>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // HTML'i güncelle
+    document.querySelector('.nav-tabs').innerHTML = tabsHtml;
+    document.querySelector('.tab-content').innerHTML = tabContentsHtml;
+
+    // İlk yükleme için bugünün verilerini getir
+    loadOrdersForDate(today.toISOString().split('T')[0]);
+}
+
+// Belirli bir tarih için siparişleri yükle
+async function loadOrdersForDate(date) {
+    try {
+        const response = await fetch(`${API_URL}/orders/filtered?start_date=${date}&end_date=${date}&per_page=1000`);
+        const data = await response.json();
+        
+        updateDeliveryCounts(data.orders);
+        updateOrdersTable(`orders-${date}`, data.orders);
+        
+    } catch (error) {
+        console.error('Siparişler yüklenirken hata:', error);
+        showToast('Veriler yüklenemedi', 'error');
+    }
+}
+
+// Otomatik yenileme fonksiyonunu güncelle
+function setupAutoRefresh() {
+    setInterval(() => {
+        const activeTab = document.querySelector('.nav-link.active');
+        if (activeTab) {
+            const date = activeTab.getAttribute('data-date');
+            loadOrdersForDate(date);
+        }
+    }, 120000); // 2 dakikada bir
+}

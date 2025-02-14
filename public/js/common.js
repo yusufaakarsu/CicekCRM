@@ -50,6 +50,14 @@ function formatDate(date) {
     }).format(new Date(date));
 }
 
+function formatDateLocale(date) {
+    return new Intl.DateTimeFormat('tr-TR', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+    }).format(new Date(date));
+}
+
 // Teslimat saati formatı güncellendi
 function formatDeliveryTime(slot) {
     const slots = {
