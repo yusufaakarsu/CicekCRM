@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "Çiçekçi sipariş ve müşteri yönetim sistemi",
   "scripts": {
-    "build": "echo 'No build required - static files'"
+    "build": "cp -r public dist"
   }
 }
