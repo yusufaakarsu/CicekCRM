@@ -50,7 +50,8 @@ async function loadOrders() {
                 </td>
                 <td>
                     <div class="fw-bold">${formatCurrency(order.total_amount)}</div>
-                    <small class="text-muted">${order.payment_method || ''}</small>
+                    <div>${getPaymentStatusBadge(order.payment_status)}</div>
+                    <small class="text-muted">${formatPaymentMethod(order.payment_method)}</small>
                 </td>
                 <td>
                     <div class="btn-group btn-group-sm">

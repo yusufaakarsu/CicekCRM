@@ -65,6 +65,16 @@ function getStatusBadge(status) {
     return `<span class="badge bg-${color}">${text}</span>`;
 }
 
+// Ödeme yöntemi formatla
+function formatPaymentMethod(method) {
+    const methodMap = {
+        'credit_card': 'Kredi Kartı',
+        'bank_transfer': 'Havale/EFT',
+        'cash': 'Nakit'
+    };
+    return methodMap[method] || method;
+}
+
 async function loadDashboardData() {
     try {
         const response = await fetch(`${API_URL}/api/dashboard`);
