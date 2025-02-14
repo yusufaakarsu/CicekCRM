@@ -2,13 +2,22 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHeader();
     loadOrders();
     
-    // Durum butonları için event listener ekle
-    const statusButtons = document.querySelectorAll('[data-status]');
-    statusButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            const status = e.currentTarget.dataset.status;
+    // Durum butonları için event listener'ları ekle
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.status-btn')) {
+            const button = e.target.closest('.status-btn');
+            const status = button.dataset.status;
             updateOrderStatus(status);
-        });
+        }
+    });
+
+    // Modal açıldığında inert attribute'unu kaldır
+    const orderDetailModal = document.getElementById('orderDetailModal');
+    orderDetailModal.addEventListener('shown.bs.modal', () => {
+        const buttonGroup = orderDetailModal.querySelector('.btn-group');
+        if (buttonGroup.hasAttribute('inert')) {
+            buttonGroup.removeAttribute('inert');
+        }
     });
 });
 
@@ -214,7 +223,7 @@ function getStatusBadge(status) {
     const statusMap = {
         new: ['Yeni', 'warning'],
         preparing: ['Hazırlanıyor', 'info'],
-        ready: ['Hazır', 'secondary'],
+        ready: ['Hazır', 'info'],
         delivering: ['Yolda', 'primary'],
         delivered: ['Teslim Edildi', 'success'],
         cancelled: ['İptal', 'danger']
@@ -270,28 +279,35 @@ function updateStatusButtons(currentStatus) {
     const statusFlow = ['new', 'preparing', 'ready', 'delivering', 'delivered'];
     const currentIndex = statusFlow.indexOf(currentStatus);
     
-    // Modal'ı bul
-    const modal = document.getElementById('orderDetailModal');
-    
-    // Butonları bul ve güncelle
-    modal.querySelectorAll('[data-status]').forEach(button => {
+    // Tüm durum butonlarını bul
+    document.querySelectorAll('.status-btn').forEach(button => {
         const status = button.dataset.status;
         const statusIndex = statusFlow.indexOf(status);
         
-        button.classList.remove('active', 'disabled');
+        // Önce tüm class ve attributeleri temizle
+        button.className = 'btn status-btn';
         button.removeAttribute('disabled');
-        button.removeAttribute('aria-disabled');
         
-        if (statusIndex < currentIndex) {
-            button.classList.add('active', 'disabled');
+        // Duruma göre stil uygula
+        if (status === currentStatus) {
+            button.classList.add('btn-' + getButtonStyle(status), 'active');
             button.setAttribute('disabled', 'true');
-            button.setAttribute('aria-disabled', 'true');
-        } else if (statusIndex === currentIndex) {
-            button.classList.add('active');
-        } else if (statusIndex !== currentIndex + 1) {
-            button.classList.add('disabled');
+        } else if (statusIndex === currentIndex + 1) {
+            button.classList.add('btn-outline-' + getButtonStyle(status));
+        } else {
+            button.classList.add('btn-outline-' + getButtonStyle(status));
             button.setAttribute('disabled', 'true');
-            button.setAttribute('aria-disabled', 'true');
         }
     });
+}
+
+// Buton stillerini belirle
+function getButtonStyle(status) {
+    const styles = {
+        'preparing': 'warning',
+        'ready': 'info',
+        'delivering': 'primary',
+        'delivered': 'success'
+    };
+    return styles[status] || 'secondary';
 }
