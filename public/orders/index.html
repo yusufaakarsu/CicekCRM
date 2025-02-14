@@ -233,6 +233,141 @@
         </div>
     </div>
 
+    <!-- Yeni Sipariş Modal -->
+    <div class="modal" id="newOrderModal" role="dialog" aria-modal="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Sipariş</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newOrderForm">
+                        <!-- Müşteri Bilgileri -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6>Müşteri Bilgileri</h6>
+                                <div class="mb-2">
+                                    <label class="form-label">Müşteri</label>
+                                    <select class="form-select" name="customer_id" required>
+                                        <option value="">Müşteri Seçin</option>
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showNewCustomerForm()">
+                                        <i class="bi bi-plus"></i> Yeni Müşteri
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alıcı Bilgileri -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h6>Alıcı Bilgileri</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label class="form-label">Alıcı Adı</label>
+                                    <input type="text" class="form-control" name="recipient_name" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Alıcı Telefonu</label>
+                                    <input type="tel" class="form-control" name="recipient_phone" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label class="form-label">Teslimat Adresi</label>
+                                    <textarea class="form-control" name="delivery_address" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Not</label>
+                                    <input type="text" class="form-control" name="recipient_note">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Teslimat Bilgileri -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h6>Teslimat Bilgileri</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label class="form-label">Teslimat Tarihi</label>
+                                    <input type="date" class="form-control" name="delivery_date" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Teslimat Saati</label>
+                                    <select class="form-select" name="delivery_time_slot" required>
+                                        <option value="morning">Sabah (09:00-12:00)</option>
+                                        <option value="afternoon">Öğlen (12:00-17:00)</option>
+                                        <option value="evening">Akşam (17:00-21:00)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label class="form-label">Kart Mesajı</label>
+                                    <textarea class="form-control" name="card_message" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ürünler -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h6>Ürünler</h6>
+                                <div id="orderItems">
+                                    <!-- Ürün satırları JavaScript ile eklenecek -->
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addOrderItem()">
+                                    <i class="bi bi-plus"></i> Ürün Ekle
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Ödeme Bilgileri -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Ödeme Bilgileri</h6>
+                                <div class="mb-2">
+                                    <label class="form-label">Ödeme Yöntemi</label>
+                                    <select class="form-select" name="payment_method" required>
+                                        <option value="credit_card">Kredi Kartı</option>
+                                        <option value="bank_transfer">Havale/EFT</option>
+                                        <option value="cash">Nakit</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2 mt-4">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Ara Toplam:</span>
+                                        <span id="subtotal">₺0,00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Teslimat Ücreti:</span>
+                                        <span id="deliveryFee">₺0,00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between fw-bold mt-2">
+                                        <span>Toplam:</span>
+                                        <span id="totalAmount">₺0,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveOrder()">Sipariş Oluştur</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/common.js"></script>
     <script src="/js/orders.js"></script>

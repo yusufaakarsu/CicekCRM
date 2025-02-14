@@ -329,3 +329,180 @@ function getButtonStyle(status) {
     };
     return styles[status] || 'secondary';
 }
+
+// Yeni sipariş modalını göster
+function showNewOrderModal() {
+    loadCustomers(); // Müşteri listesini yükle
+    clearNewOrderForm(); // Formu temizle
+    const modal = new bootstrap.Modal(document.getElementById('newOrderModal'));
+    modal.show();
+}
+
+// Müşterileri yükle
+async function loadCustomers() {
+    try {
+        const response = await fetch(`${API_URL}/customers`);
+        if (!response.ok) throw new Error('API Hatası');
+        const customers = await response.json();
+        
+        const select = document.querySelector('[name="customer_id"]');
+        select.innerHTML = `
+            <option value="">Müşteri Seçin</option>
+            ${customers.map(customer => `
+                <option value="${customer.id}">${customer.name} (${customer.phone})</option>
+            `).join('')}
+        `;
+    } catch (error) {
+        showToast('Müşteriler yüklenemedi', 'error');
+    }
+}
+
+// Ürün satırı ekle
+function addOrderItem() {
+    const itemsContainer = document.getElementById('orderItems');
+    const itemId = Date.now(); // Unique ID
+    
+    const itemHtml = `
+        <div class="row mb-2 order-item" data-id="${itemId}">
+            <div class="col-5">
+                <select class="form-select form-select-sm" name="product_id" required onchange="updatePrice(${itemId})">
+                    <option value="">Ürün Seçin</option>
+                    <!-- Ürünler JavaScript ile doldurulacak -->
+                </select>
+            </div>
+            <div class="col-2">
+                <input type="number" class="form-control form-control-sm" name="quantity" 
+                       value="1" min="1" required onchange="updatePrice(${itemId})">
+            </div>
+            <div class="col-3">
+                <input type="text" class="form-control form-control-sm" name="price" readonly>
+            </div>
+            <div class="col-2">
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOrderItem(${itemId})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    itemsContainer.insertAdjacentHTML('beforeend', itemHtml);
+    loadProducts(itemId); // Ürünleri yükle
+}
+
+// Ürün satırını kaldır
+function removeOrderItem(itemId) {
+    document.querySelector(`.order-item[data-id="${itemId}"]`).remove();
+    calculateTotals();
+}
+
+// Ürünleri yükle
+async function loadProducts(itemId) {
+    try {
+        const response = await fetch(`${API_URL}/products`);
+        if (!response.ok) throw new Error('API Hatası');
+        const products = await response.json();
+        
+        const select = document.querySelector(`.order-item[data-id="${itemId}"] [name="product_id"]`);
+        select.innerHTML = `
+            <option value="">Ürün Seçin</option>
+            ${products.map(product => `
+                <option value="${product.id}" data-price="${product.retail_price}">
+                    ${product.name} - ${formatCurrency(product.retail_price)}
+                </option>
+            `).join('')}
+        `;
+    } catch (error) {
+        showToast('Ürünler yüklenemedi', 'error');
+    }
+}
+
+// Fiyatları güncelle
+function updatePrice(itemId) {
+    const item = document.querySelector(`.order-item[data-id="${itemId}"]`);
+    const select = item.querySelector('[name="product_id"]');
+    const quantity = parseInt(item.querySelector('[name="quantity"]').value) || 0;
+    
+    if (select.value) {
+        const price = parseFloat(select.options[select.selectedIndex].dataset.price);
+        item.querySelector('[name="price"]').value = formatCurrency(price * quantity);
+    }
+    
+    calculateTotals();
+}
+
+// Toplamları hesapla
+function calculateTotals() {
+    let subtotal = 0;
+    document.querySelectorAll('.order-item').forEach(item => {
+        const select = item.querySelector('[name="product_id"]');
+        const quantity = parseInt(item.querySelector('[name="quantity"]').value) || 0;
+        
+        if (select.value) {
+            const price = parseFloat(select.options[select.selectedIndex].dataset.price);
+            subtotal += price * quantity;
+        }
+    });
+    
+    const deliveryFee = 50; // Sabit teslimat ücreti
+    const total = subtotal + deliveryFee;
+    
+    document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+    document.getElementById('deliveryFee').textContent = formatCurrency(deliveryFee);
+    document.getElementById('totalAmount').textContent = formatCurrency(total);
+}
+
+// Formu temizle
+function clearNewOrderForm() {
+    document.getElementById('newOrderForm').reset();
+    document.getElementById('orderItems').innerHTML = '';
+    addOrderItem(); // İlk ürün satırını ekle
+    calculateTotals();
+}
+
+// Siparişi kaydet
+async function saveOrder() {
+    const form = document.getElementById('newOrderForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    try {
+        // Form verilerini topla
+        const formData = {
+            customer_id: form.querySelector('[name="customer_id"]').value,
+            recipient_name: form.querySelector('[name="recipient_name"]').value,
+            recipient_phone: form.querySelector('[name="recipient_phone"]').value,
+            delivery_address: form.querySelector('[name="delivery_address"]').value,
+            recipient_note: form.querySelector('[name="recipient_note"]').value,
+            delivery_date: form.querySelector('[name="delivery_date"]').value,
+            delivery_time_slot: form.querySelector('[name="delivery_time_slot"]').value,
+            card_message: form.querySelector('[name="card_message"]').value,
+            payment_method: form.querySelector('[name="payment_method"]').value,
+            items: Array.from(document.querySelectorAll('.order-item')).map(item => ({
+                product_id: item.querySelector('[name="product_id"]').value,
+                quantity: parseInt(item.querySelector('[name="quantity"]').value)
+            })).filter(item => item.product_id && item.quantity)
+        };
+
+        const response = await fetch(`${API_URL}/orders`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) throw new Error('Kayıt başarısız');
+
+        // Modalı kapat
+        bootstrap.Modal.getInstance(document.getElementById('newOrderModal')).hide();
+        
+        // Tabloyu yenile
+        loadOrders();
+        
+        showToast('Sipariş başarıyla oluşturuldu', 'success');
+    } catch (error) {
+        showToast('Sipariş oluşturulurken hata oluştu', 'error');
+    }
+}
