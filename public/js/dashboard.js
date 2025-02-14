@@ -164,10 +164,12 @@ async function updateOrderStatus(orderId, newStatus) {
 // Durum metni alma yardımcı fonksiyonu
 function getStatusText(status) {
     const statusMap = {
+        'new': 'Yeni',
         'preparing': 'Hazırlanıyor',
-        'ready': 'Hazır',
+        'ready': 'Hazır',               // Eklendi
         'delivering': 'Yolda',
-        'delivered': 'Teslim Edildi'
+        'delivered': 'Teslim Edildi',   // Eklendi
+        'cancelled': 'İptal'
     };
     return statusMap[status] || status;
 }

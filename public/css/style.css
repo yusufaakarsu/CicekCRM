@@ -69,8 +69,10 @@ body {
 /* Status renkler */
 .status-new { background-color: #fff3cd; }
 .status-preparing { background-color: #cfe2ff; }
+.status-ready { background-color: #e8f4fc; }     /* Eklendi */
 .status-delivering { background-color: #d1e7dd; }
-.status-completed { background-color: #e2e3e5; }
+.status-delivered { background-color: #d4edda; }  /* Eklendi */
+.status-cancelled { background-color: #f8d7da; }  /* Eklendi */
 
 /* Loading state */
 .loading {

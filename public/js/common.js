@@ -63,10 +63,12 @@ function formatDeliveryTime(slot) {
 // Status badge oluştur
 function getStatusBadge(status) {
     const statusMap = {
-        new: ['Yeni', 'warning'],
-        preparing: ['Hazırlanıyor', 'info'],
-        delivering: ['Yolda', 'primary'],
-        completed: ['Tamamlandı', 'success']
+        'new': ['Yeni', 'warning'],
+        'preparing': ['Hazırlanıyor', 'info'],
+        'ready': ['Hazır', 'primary'],          // Eklendi
+        'delivering': ['Yolda', 'info'],
+        'delivered': ['Teslim Edildi', 'success'], // Eklendi
+        'cancelled': ['İptal', 'danger']
     };
 
     const [text, color] = statusMap[status] || ['Bilinmiyor', 'secondary'];
