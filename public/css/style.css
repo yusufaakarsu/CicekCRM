@@ -232,3 +232,27 @@ body {
     color: #dc3545;
     margin-left: 4px;
 }
+
+/* Teslimat saati badge stilleri güncellendi */
+.delivery-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.delivery-time.morning { 
+    background-color: #fff3cd; 
+    color: #997404;
+}
+.delivery-time.afternoon { 
+    background-color: #cff4fc; 
+    color: #055160;
+}
+.delivery-time.evening { 
+    background-color: #d3d3fc; 
+    color: #3b0764;
+}

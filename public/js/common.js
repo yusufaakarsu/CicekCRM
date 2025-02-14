@@ -50,12 +50,12 @@ function formatDate(date) {
     }).format(new Date(date));
 }
 
-// Teslimat saati formatı
+// Teslimat saati formatı güncellendi
 function formatDeliveryTime(slot) {
     const slots = {
-        'morning': 'Sabah (09:00-12:00)',
-        'afternoon': 'Öğlen (12:00-17:00)',
-        'evening': 'Akşam (17:00-21:00)'
+        'morning': '📅 Sabah (09:00-12:00)', 
+        'afternoon': '🌞 Öğlen (12:00-17:00)',
+        'evening': '🌙 Akşam (17:00-21:00)'
     };
     return slots[slot] || slot;
 }
