@@ -48,14 +48,12 @@ async function loadOrders() {
         const filters = getActiveFilters();
         const queryString = new URLSearchParams(filters).toString();
 
-        // Filtered endpoint'ini kullan
         const response = await fetch(`${API_URL}/orders/filtered?${queryString}`);
         if (!response.ok) throw new Error('API Hatası');
         const data = await response.json();
 
         renderOrders(data.orders);
-        renderPagination(data.total); // Toplam kayıt sayısını al
-
+        renderPagination(data.total, data.total_pages, data.page); // Parametre ekledik
     } catch (error) {
         console.error('Siparişler yüklenirken hata:', error);
         showToast('Siparişler yüklenemedi!', 'error');
@@ -193,32 +191,45 @@ function confirmCancelOrder(orderId) {
     }
 }
 
-function renderPagination(total) {
-    const totalPages = Math.ceil(total / PER_PAGE);
+function renderPagination(total, totalPages, currentPage) {
     const pagination = document.getElementById('pagination');
     
-    let html = '';
-    
-    if (totalPages > 1) {
-        // Önceki sayfa
-        html += `
-            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">Önceki</a>
-            </li>
-        `;
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
 
-        // İlk sayfa
-        if (currentPage > 3) {
+    let html = `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})" aria-label="Önceki">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        </li>
+    `;
+
+    // Sayfa numaralarını oluştur
+    if (totalPages <= 7) {
+        // 7 veya daha az sayfa varsa hepsini göster
+        for (let i = 1; i <= totalPages; i++) {
             html += `
-                <li class="page-item">
-                    <a class="page-link" href="javascript:void(0)" onclick="changePage(1)">1</a>
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
                 </li>
-                <li class="page-item disabled"><span class="page-link">...</span></li>
             `;
         }
+    } else {
+        // İlk sayfa
+        html += `<li class="page-item ${currentPage === 1 ? 'active' : ''}">
+                    <a class="page-link" href="javascript:void(0)" onclick="changePage(1)">1</a>
+                </li>`;
 
-        // Sayfa numaraları
-        for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+        // Başlangıç elipsi
+        if (currentPage > 3) {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+
+        // Ortadaki sayfalar
+        for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
             html += `
                 <li class="page-item ${i === currentPage ? 'active' : ''}">
                     <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
@@ -226,23 +237,32 @@ function renderPagination(total) {
             `;
         }
 
-        // Son sayfa
+        // Bitiş elipsi
         if (currentPage < totalPages - 2) {
-            html += `
-                <li class="page-item disabled"><span class="page-link">...</span></li>
-                <li class="page-item">
-                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${totalPages})">${totalPages}</a>
-                </li>
-            `;
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
         }
 
-        // Sonraki sayfa
-        html += `
-            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">Sonraki</a>
-            </li>
-        `;
+        // Son sayfa
+        html += `<li class="page-item ${currentPage === totalPages ? 'active' : ''}">
+                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${totalPages})">${totalPages}</a>
+                </li>`;
     }
+
+    // Sonraki buton
+    html += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})" aria-label="Sonraki">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+    `;
+
+    // Toplam kayıt bilgisi
+    html += `
+        <li class="ms-3 d-flex align-items-center">
+            <small class="text-muted">Toplam ${total} kayıt</small>
+        </li>
+    `;
 
     pagination.innerHTML = html;
 }

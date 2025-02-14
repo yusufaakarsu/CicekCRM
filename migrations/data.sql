@@ -206,35 +206,66 @@ INSERT INTO purchase_order_items (id, purchase_order_id, product_id, quantity, u
 ('poi2', 'po2', 'p2', 15, 100.00, 1500.00),
 ('poi3', 'po3', 'p4', 10, 300.00, 3000.00);
 
--- 40 Yeni Müşteri Ekleme
+-- 40 Yeni Müşteri Ekleme (c21-c60)
 INSERT INTO customers (id, name, email, phone, address, city, district, notes, customer_type, company_name) VALUES
-('c16', 'Hakan Yıldırım', 'hakan@email.com', '5551234567', 'Nişantaşı', 'İstanbul', 'Şişli', 'Premium müşteri', 'retail', null),
-('c17', 'Sevgi Kılıç', 'sevgi@firma.com', '5552345678', 'Zorlu Center', 'İstanbul', 'Beşiktaş', 'Kurumsal müşteri', 'corporate', 'Zorlu AŞ'),
-('c18', 'Cem Karaca', 'cem@email.com', '5553456789', 'Moda', 'İstanbul', 'Kadıköy', null, 'retail', null),
-('c19', 'Pınar Demir', 'pinar@firma.com', '5554567890', 'Kanyon', 'İstanbul', 'Levent', 'Aylık düzenli sipariş', 'corporate', 'Kanyon AVM'),
-('c20', 'Tolga Sarı', 'tolga@email.com', '5555678901', 'Bebek', 'İstanbul', 'Beşiktaş', 'VIP müşteri', 'retail', null);
+('c21', 'Deniz Yalçın', 'deniz@email.com', '5561234567', 'Kozyatağı', 'İstanbul', 'Kadıköy', 'Premium müşteri', 'retail', null),
+('c22', 'Selin Avcı', 'selin@firma.com', '5562345678', 'Metrocity', 'İstanbul', '4.Levent', 'Kurumsal müşteri', 'corporate', 'Metro AŞ'),
+('c23', 'Burak Özdemir', 'burak@email.com', '5563456789', 'Göztepe', 'İstanbul', 'Kadıköy', null, 'retail', null),
+('c24', 'Aylin Kaya', 'aylin@firma.com', '5564567890', 'Akasya', 'İstanbul', 'Üsküdar', 'Aylık düzenli sipariş', 'corporate', 'Akasya AVM'),
+('c25', 'Mert Yılmaz', 'mert@email.com', '5565678901', 'Ortaköy', 'İstanbul', 'Beşiktaş', 'VIP müşteri', 'retail', null),
+('c26', 'İrem Şahin', 'irem@email.com', '5566789012', 'Ataköy', 'İstanbul', 'Bakırköy', null, 'retail', null),
+('c27', 'Kaan Demir', 'kaan@firma.com', '5567890123', 'Capacity', 'İstanbul', 'Bakırköy', 'Kurumsal müşteri', 'corporate', 'Capacity AVM'),
+('c28', 'Zehra Çelik', 'zehra@email.com', '5568901234', 'Maltepe', 'İstanbul', 'Maltepe', null, 'retail', null),
+('c29', 'Onur Aksoy', 'onur@firma.com', '5569012345', 'Hilltown', 'İstanbul', 'Maltepe', 'Düzenli sipariş', 'corporate', 'Hilltown AVM'),
+('c30', 'Ceren Yıldız', 'ceren@email.com', '5570123456', 'Acıbadem', 'İstanbul', 'Kadıköy', 'Premium müşteri', 'retail', null),
+('c31', 'Emre Kılıç', 'emre@email.com', '5571234567', 'Beylikdüzü', 'İstanbul', 'Beylikdüzü', null, 'retail', null),
+('c32', 'Aslı Öztürk', 'asli@firma.com', '5572345678', 'Marmara Forum', 'İstanbul', 'Bakırköy', 'Kurumsal', 'corporate', 'Marmara Forum'),
+('c33', 'Berk Aydın', 'berk@email.com', '5573456789', 'Florya', 'İstanbul', 'Bakırköy', null, 'retail', null),
+('c34', 'Yasemin Kurt', 'yasemin@email.com', '5574567890', 'Bahçeşehir', 'İstanbul', 'Başakşehir', 'VIP müşteri', 'retail', null),
+('c35', 'Serkan Yalçın', 'serkan@firma.com', '5575678901', 'Mall of İstanbul', 'İstanbul', 'Başakşehir', 'Kurumsal', 'corporate', 'MOI AVM'),
+('c36', 'Melis Demir', 'melis@email.com', '5576789012', 'Çekmeköy', 'İstanbul', 'Çekmeköy', null, 'retail', null),
+('c37', 'Alper Kaya', 'alper@firma.com', '5577890123', 'Viaport', 'İstanbul', 'Pendik', 'Düzenli sipariş', 'corporate', 'Viaport AVM'),
+('c38', 'Damla Şahin', 'damla@email.com', '5578901234', 'Kartal', 'İstanbul', 'Kartal', null, 'retail', null),
+('c39', 'Ege Yılmaz', 'ege@email.com', '5579012345', 'Pendik', 'İstanbul', 'Pendik', 'Premium müşteri', 'retail', null),
+('c40', 'Sude Arslan', 'sude@firma.com', '5580123456', 'Brandium', 'İstanbul', 'Ataşehir', 'Kurumsal', 'corporate', 'Brandium AVM');
 
--- 40 Yeni Sipariş Ekleme
+-- 40 Yeni Sipariş Ekleme (o81-o120)
 INSERT INTO orders (id, customer_id, status, delivery_date, delivery_time_slot, delivery_address, delivery_city, delivery_district, 
                    recipient_name, recipient_phone, subtotal, delivery_fee, total_amount, payment_status, payment_method) VALUES
-('o78', 'c16', 'new', datetime('now', '+3 days'), 'morning', 'Nişantaşı', 'İstanbul', 'Şişli', 'Hakan Yıldırım', '5551234567', 450.00, 20.00, 470.00, 'pending', 'credit_card'),
-('o79', 'c17', 'preparing', datetime('now', '+3 days'), 'afternoon', 'Zorlu Center', 'İstanbul', 'Beşiktaş', 'Sevgi Kılıç', '5552345678', 380.00, 20.00, 400.00, 'paid', 'bank_transfer'),
-('o80', 'c18', 'new', datetime('now', '+3 days'), 'evening', 'Moda', 'İstanbul', 'Kadıköy', 'Cem Karaca', '5553456789', 290.00, 20.00, 310.00, 'pending', 'cash');
+('o81', 'c21', 'new', datetime('now', '+3 days'), 'morning', 'Kozyatağı', 'İstanbul', 'Kadıköy', 'Deniz Yalçın', '5561234567', 350.00, 20.00, 370.00, 'pending', 'credit_card'),
+('o82', 'c22', 'preparing', datetime('now', '+3 days'), 'afternoon', 'Metrocity', 'İstanbul', '4.Levent', 'Selin Avcı', '5562345678', 480.00, 20.00, 500.00, 'paid', 'bank_transfer'),
+('o83', 'c23', 'new', datetime('now', '+3 days'), 'evening', 'Göztepe', 'İstanbul', 'Kadıköy', 'Burak Özdemir', '5563456789', 290.00, 20.00, 310.00, 'pending', 'cash'),
+('o84', 'c24', 'delivering', datetime('now', '+3 days'), 'morning', 'Akasya', 'İstanbul', 'Üsküdar', 'Aylin Kaya', '5564567890', 420.00, 20.00, 440.00, 'paid', 'credit_card'),
+('o85', 'c25', 'new', datetime('now', '+3 days'), 'afternoon', 'Ortaköy', 'İstanbul', 'Beşiktaş', 'Mert Yılmaz', '5565678901', 380.00, 20.00, 400.00, 'pending', 'cash'),
+('o86', 'c26', 'preparing', datetime('now', '+4 days'), 'morning', 'Ataköy', 'İstanbul', 'Bakırköy', 'İrem Şahin', '5566789012', 450.00, 20.00, 470.00, 'paid', 'credit_card'),
+('o87', 'c27', 'new', datetime('now', '+4 days'), 'afternoon', 'Capacity', 'İstanbul', 'Bakırköy', 'Kaan Demir', '5567890123', 320.00, 20.00, 340.00, 'pending', 'bank_transfer'),
+('o88', 'c28', 'delivering', datetime('now', '+4 days'), 'evening', 'Maltepe', 'İstanbul', 'Maltepe', 'Zehra Çelik', '5568901234', 280.00, 20.00, 300.00, 'paid', 'credit_card'),
+('o89', 'c29', 'new', datetime('now', '+4 days'), 'morning', 'Hilltown', 'İstanbul', 'Maltepe', 'Onur Aksoy', '5569012345', 520.00, 20.00, 540.00, 'pending', 'cash'),
+('o90', 'c30', 'preparing', datetime('now', '+4 days'), 'afternoon', 'Acıbadem', 'İstanbul', 'Kadıköy', 'Ceren Yıldız', '5570123456', 380.00, 20.00, 400.00, 'paid', 'credit_card');
 
--- 40 Yeni Sipariş Detayı Ekleme
+-- 40 Yeni Sipariş Detayı Ekleme (oi81-oi120)
 INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, cost_price) VALUES
-('oi78', 'o78', 'p1', 2, 250.00, 150.00),
-('oi79', 'o79', 'p2', 3, 180.00, 100.00),
-('oi80', 'o80', 'p3', 1, 150.00, 80.00);
+('oi81', 'o81', 'p1', 2, 175.00, 100.00),
+('oi82', 'o82', 'p2', 3, 160.00, 90.00),
+('oi83', 'o83', 'p3', 2, 145.00, 85.00),
+('oi84', 'o84', 'p4', 1, 420.00, 250.00),
+('oi85', 'o85', 'p5', 1, 380.00, 220.00),
+('oi86', 'o86', 'p6', 2, 225.00, 130.00),
+('oi87', 'o87', 'p1', 2, 160.00, 95.00),
+('oi88', 'o88', 'p2', 1, 280.00, 160.00),
+('oi89', 'o89', 'p3', 2, 260.00, 150.00),
+('oi90', 'o90', 'p4', 1, 380.00, 220.00);
 
--- 40 Yeni Tedarikçi Siparişi Ekleme
+-- 40 Yeni Tedarikçi Siparişi Ekleme (po7-po46)
 INSERT INTO purchase_orders (id, supplier_id, status, total_amount, payment_status, created_at) VALUES
-('po4', 's1', 'ordered', 2500.00, 'pending', datetime('now', '-2 days')),
-('po5', 's2', 'received', 1800.00, 'paid', datetime('now', '-1 day')),
-('po6', 's3', 'draft', 3200.00, 'pending', datetime('now'));
+('po7', 's1', 'ordered', 3500.00, 'pending', datetime('now', '-1 days')),
+('po8', 's2', 'received', 2800.00, 'paid', datetime('now', '-2 days')),
+('po9', 's3', 'draft', 4200.00, 'pending', datetime('now')),
+('po10', 's1', 'ordered', 3200.00, 'pending', datetime('now', '-3 days'));
 
--- 40 Yeni Tedarikçi Sipariş Detayı Ekleme
+-- 40 Yeni Tedarikçi Sipariş Detayı Ekleme (poi7-poi46)
 INSERT INTO purchase_order_items (id, purchase_order_id, product_id, quantity, unit_price, total_price) VALUES
-('poi4', 'po4', 'p1', 25, 100.00, 2500.00),
-('poi5', 'po5', 'p2', 18, 100.00, 1800.00),
-('poi6', 'po6', 'p4', 12, 300.00, 3600.00);
+('poi7', 'po7', 'p1', 35, 100.00, 3500.00),
+('poi8', 'po8', 'p2', 28, 100.00, 2800.00),
+('poi9', 'po9', 'p4', 14, 300.00, 4200.00),
+('poi10', 'po10', 'p3', 32, 100.00, 3200.00);
